@@ -107,9 +107,14 @@ public interface IDesign extends Identifiable, Exportable, Valuable,
 	void extendScope(IDesign neighbor);
 
 	/**
-	 * compares if two designs are defining the same configuration; not necessarily having the same id, and are not necessarily equal.
-	 * @param obj
-	 * @return
+	 * Compares the two sets of parameters in the designs.
+	 * The two designs need not be equal or even have the same ID to be
+	 * considered the "same".
+	 * @param obj the other design
+	 * @return {@code true} if {@code obj} is a Design, the set of parameters
+	 * in {@code this} is a subset of the set of parameters in {@code obj} and
+	 * the parameters in their intersection have the same value in both
+	 * designs.
 	 */
 	boolean same(Object obj);
 }
