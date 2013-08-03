@@ -20,6 +20,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package se.miun.itm.input.model.design;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
@@ -189,5 +190,28 @@ public class DesignSpaceTest {
 	public void creatingPossibleDesignSpace() throws InPUTException {
 		final String designSpaceFile = "possibleSpace.xml";
 		new DesignSpace(designSpaceFile);
+	}
+
+	/**
+	 * This test demonstrates that the referenced parameters are initialized
+	 * independent of the ranges of the dependent parameters. In this design
+	 * space, the D parameter can only be initialized to a valid value if A
+	 * and B are both set to 0. C, on the other hand, can never be set to
+	 * a valid value.
+	 * This test is similar to the
+	 * creatingDesignFromImpossibleDesignSpaceUnexpectedlyWorks test above.
+	 * The difference is that the ranges are much bigger. In that test, A
+	 * can only be set to a single value in any case. Here, A and B can take
+	 * on many values, but should they?
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void initializingParameterWithTinyRange() throws InPUTException {
+		final String designSpaceFile = "overlapSpace.xml";
+		DesignSpace space = new DesignSpace(designSpaceFile);
+		IDesign design = space.nextDesign("design");
+		final long a = design.getValue("A");
+		final long b = design.getValue("B");
+		assertFalse("A and B both being 0 is unlikely!", a == 0 && b == 0);
 	}
 }
