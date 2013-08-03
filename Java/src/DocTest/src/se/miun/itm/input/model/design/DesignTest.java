@@ -20,6 +20,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 package se.miun.itm.input.model.design;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -125,6 +126,9 @@ public class DesignTest {
 	 * parameters that only exist in the extending scope can be set, any
 	 * parameter can still be set, simply by extending an empty Design so
 	 * that all of the parameters are unique.
+	 *
+	 * Also note that parameters with the same IDs do not seem to cause
+	 * problems, which would contradict the documentation for IDesign.
 	 * @throws InPUTException
 	 */
 	@Test
@@ -154,5 +158,25 @@ public class DesignTest {
 		
 		final int z = extendingDesign.getValue("Z");
 		assertTrue("The read-only design should be changed.", origZ != z);
+	}
+
+	/**
+	 * This test demonstrates that the {@link Design.same(Object)} method
+	 * returns true if and only if the argument is a superset of {@code this}
+	 * and all parameters in their intersection have the same value in
+	 * both designs.
+	 * @throws InPUTException
+	 */
+	@Test
+	public void subsetIsSameButSupersetIsNotSame() throws InPUTException {
+		final String subsetFile = "subsetDesign.xml";
+		final String supersetFile = "supersetDesign01.xml";
+		final String supersetFile2 = "supersetDesign02.xml";
+		final Design subset = new Design(subsetFile);
+		final Design superset = new Design(supersetFile);
+		final Design superset2 = new Design(supersetFile2);
+		assertTrue(subset.same(superset));
+		assertFalse(superset.same(subset));
+		assertFalse(subset.same(superset2));
 	}
 }
