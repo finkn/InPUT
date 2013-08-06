@@ -324,7 +324,7 @@ public class DesignSpaceTest {
 	 * This test demonstrates that fixed parameters can be fixed to
 	 * new values (being fixed doesn't prevent them from getting fixed).
 	 * The parameter was initially unfixed in the design space configuration.
-	 * @throws InPUTException
+	 * @throws InPUTException never
 	 */
 	@Test
 	public void setFixedMultipleTimesIsLegal() throws InPUTException {
@@ -338,7 +338,7 @@ public class DesignSpaceTest {
 	 * This test demonstrates that fixed parameters can be fixed to new
 	 * values even when they were defined as fixed in the design space
 	 * configuration.
-	 * @throws InPUTException
+	 * @throws InPUTException never
 	 */
 	@Test
 	public void fixedParametersCanBeFixedToNewValues() throws InPUTException {
@@ -351,7 +351,7 @@ public class DesignSpaceTest {
 	 * This test demonstrates that setting a fixed value bypasses range
 	 * checks. That is, a parameter can be set to an out-of-range value.
 	 * The only legal value for A is 2, but we can set it to 100.
-	 * @throws InPUTException
+	 * @throws InPUTException never
 	 */
 	@Test
 	public void setFixedBypassesRanges() throws InPUTException {
@@ -360,5 +360,31 @@ public class DesignSpaceTest {
 		space.setFixed("A", "100");
 		IDesign design = space.nextDesign("design");
 		assertEquals(100, design.getValue("A"));
+	}
+
+	/**
+	 * This test demonstrates that an integer parameter can be fixed to
+	 * a floating point value. The value will simply be truncated.
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void integerParameterFixedToFloatIsTruncated()
+			throws InPUTException {
+		final String designSpaceFile = "typeMismatchSpace.xml";
+		DesignSpace space = new DesignSpace(designSpaceFile);
+		assertEquals("Expected A to be truncated to 2.", 2, space.next("A"));
+	}
+
+	/**
+	 * This test demonstrates that an integer parameter can be defined
+	 * by a range of floating point values. They will both be truncated.
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void floatRangeIsTruncatedForIntegerParameter()
+			throws InPUTException {
+		final String designSpaceFile = "floatRangeSpace.xml";
+		DesignSpace space = new DesignSpace(designSpaceFile);
+		assertEquals("The only legal value should be 2.", 2, space.next("A"));
 	}
 }
