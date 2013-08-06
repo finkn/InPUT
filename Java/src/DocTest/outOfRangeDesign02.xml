@@ -10,9 +10,10 @@
         This Design is valid.
         Therefore, one would expect to be able to set the value of A
         immediately after importing the Design. However, as
-        DesignTest.testSetDependentValueFails and
-        DesignTest.testSetDependentValueSucceeds together demonstrate, setting
-        A without first touching B results in an InPUTException.
+        DesignTest.settingDependentValueFailsUnlessFirstTouchingDependee and
+        DesignTest.settingDependentValueSucceedsOnlyIfFirstTouchingDependee
+        together demonstrate that setting A without first touching B results
+        in an InPUTException.
     -->
     <i:NValue id="A" value="5" />
     <i:NValue id="B" value="4" />

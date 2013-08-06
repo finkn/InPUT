@@ -129,7 +129,7 @@ public class DesignTest {
 	 *
 	 * Also note that parameters with the same IDs do not seem to cause
 	 * problems, which would contradict the documentation for IDesign.
-	 * @throws InPUTException
+	 * @throws InPUTException never
 	 */
 	@Test
 	public void extendingScopeCanCircumventReadOnly() throws InPUTException {
@@ -162,10 +162,10 @@ public class DesignTest {
 
 	/**
 	 * This test demonstrates that the {@link Design.same(Object)} method
-	 * returns true if and only if the argument is a superset of {@code this}
+	 * returns true if the argument is a superset of {@code this}
 	 * and all parameters in their intersection have the same value in
 	 * both designs.
-	 * @throws InPUTException
+	 * @throws InPUTException never
 	 */
 	@Test
 	public void subsetIsSameButSupersetIsNotSame() throws InPUTException {
@@ -178,5 +178,32 @@ public class DesignTest {
 		assertTrue(subset.same(superset));
 		assertFalse(superset.same(subset));
 		assertFalse(subset.same(superset2));
+	}
+
+	/**
+	 * This test demonstrates that two designs with the same id and
+	 * an identical set of parameters are still not considered equal.
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void designEqualityIsDeterminedByDesignSpace()
+			throws InPUTException {
+		final String subsetFile = "duplicateIdSpace01.xml";
+		final String supersetFile = "duplicateIdSpace02.xml";
+		DesignSpace subsetSpace = new DesignSpace(subsetFile);
+		DesignSpace supersetSpace = new DesignSpace(supersetFile);
+		IDesign subsetDesign = subsetSpace.nextDesign("design");
+		IDesign supersetDesign = supersetSpace.nextDesign("design");
+		final String id1 = subsetDesign.getId();
+		final String id2 = supersetDesign.getId();
+
+		// The two designs are subsets of each other.
+		// They define exactly the same parameter.
+		// They also have the same id.
+		assertTrue(subsetDesign.same(supersetDesign));
+		assertTrue(supersetDesign.same(subsetDesign));
+		assertEquals(id1, id2);
+		// Yet, the two designs are not considered equal.
+		assertFalse(subsetDesign.equals(supersetDesign));
 	}
 }

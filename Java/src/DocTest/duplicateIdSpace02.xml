@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <i:DesignSpace
-    id="supersetSpace"
+    id="duplicateIdSpace02"
     xmlns:i="http://TheInPUT.org/DesignSpace"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://TheInPUT.org/DesignSpace http://theinput.org/DesignSpace.xsd" >
 
-    <!-- Note that A is a different parameter in this design. -->
-	<i:NParam type="integer" id="A" inclMin="0" />
-	<i:NParam type="integer" id="B" />
-    <i:NParam type="integer" id="C" />
-    <i:NParam type="integer[2]" id="Z" />
+    <!--
+        A design created from this design space would be a subset of a
+        design created from the 01 design space. Therefore, 02.same(01)
+        would be true.
+    -->
+    <i:NParam type="integer" id="A" fixed="10" />
 
 </i:DesignSpace>

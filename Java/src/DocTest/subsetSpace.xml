@@ -8,4 +8,6 @@
 	<i:NParam type="integer" id="A" />
 	<i:NParam type="integer" id="B" />
 
+    <i:NParam type="integer[2]" id="Z" />
+
 </i:DesignSpace>

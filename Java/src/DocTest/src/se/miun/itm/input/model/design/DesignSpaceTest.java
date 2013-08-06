@@ -214,4 +214,151 @@ public class DesignSpaceTest {
 		final long b = design.getValue("B");
 		assertFalse("A and B both being 0 is unlikely!", a == 0 && b == 0);
 	}
+
+	/**
+	 * This test demonstrates that a parameter ID is allowed to contain
+	 * a dot.
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void singleParameterWithDotInTheIdIsLegal() throws InPUTException {
+		final String designSpaceFile = "dottedNameSpace01.xml";
+		DesignSpace space = new DesignSpace(designSpaceFile);
+		IDesign design = space.nextDesign("design");
+		assertEquals(43, design.getValue("A.1.2.3"));
+	}
+
+	/**
+	 * This test demonstrates that it is legal for an array element to
+	 * have the same ID as another parameter. Getting the value for such
+	 * a shared ID returns the array element.
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void anArrayElementWithTheSameIdAsAnotherParameterTakesPrecedence()
+			throws InPUTException {
+		final String designSpaceFile = "dottedNameSpace02.xml";
+		DesignSpace space = new DesignSpace(designSpaceFile);
+		IDesign design = space.nextDesign("design");
+		assertEquals(10, design.getValue("A.1"));
+	}
+
+	/**
+	 * This test demonstrates that duplicate IDs are legal.
+	 * In other words, a DesignSpace can contain multiple parameters with
+	 * the same ID. It seems to be the case that the one that is declared
+	 * last is the one that remains.
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void duplicateIDsAreLegal() throws InPUTException {
+		final String designSpaceFile = "duplicateIdSpace01.xml";
+		DesignSpace space = new DesignSpace(designSpaceFile);
+		IDesign design = space.nextDesign("design");
+		assertEquals(10, design.getValue("A"));
+		final int params = design.getSupportedParamIds().size();
+		assertEquals("Expected only 1 parameter in the design.", 1, params);
+	}
+
+	/**
+	 * This test demonstrates that an empty string is a valid Design id.
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void creatingDesignWithEmptyIdIsLegal() throws InPUTException {
+		final String designSpaceFile = "possibleSpace.xml";
+		DesignSpace space = new DesignSpace(designSpaceFile);
+		IDesign design = space.nextDesign("");
+		assertEquals("", design.getId());
+	}
+
+	/**
+	 * This test demonstrates that simple arithmetic expressions (in this
+	 * case "1 + 2") are not evaluated. Instead they are parsed as
+	 * numbers, causing a NumberFormatException.
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void simpleArithmeticExpressionsCannotBeEvaluated()
+			throws InPUTException {
+		final String designSpaceFile = "simpleArithmeticSpace.xml";
+		try {
+			new DesignSpace(designSpaceFile);
+			fail("Creating the design space is expected to fail.");
+		} catch(NumberFormatException e) { }
+	}
+
+	/**
+	 * This test demonstrates that fixed parameters cannot be set to an
+	 * expression. The expression isn't evaluated and thus causes a
+	 * NumberFormatException.
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void fixedParametersAreNotEvaluated() throws InPUTException {
+		final String designSpaceFile = "fixedRelativeSpace.xml";
+		DesignSpace space = new DesignSpace(designSpaceFile);
+		try {
+			space.nextDesign("design id");
+			fail("Creating the design is expected to fail.");
+		} catch(NumberFormatException e) { }
+	}
+
+	/**
+	 * This test demonstrates that spaces are allowed in IDs, and that
+	 * the DesignSpace can be created. However, an expression involving
+	 * a parameter ID with white space cannot be evaluated.
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void spaceInIdIsLegal() throws InPUTException {
+		final String designSpaceFile = "spaceInIdSpace.xml";
+		DesignSpace space = new DesignSpace(designSpaceFile);
+		try {
+			space.nextDesign("design");
+			fail("Creating the design is expected to fail.");
+		} catch(InPUTException e) { }
+	}
+
+	/**
+	 * This test demonstrates that fixed parameters can be fixed to
+	 * new values (being fixed doesn't prevent them from getting fixed).
+	 * The parameter was initially unfixed in the design space configuration.
+	 * @throws InPUTException
+	 */
+	@Test
+	public void setFixedMultipleTimesIsLegal() throws InPUTException {
+		final String designSpaceFile = "possibleSpace.xml";
+		DesignSpace space = new DesignSpace(designSpaceFile);
+		space.setFixed("A", "2");
+		space.setFixed("A", "2");
+	}
+
+	/**
+	 * This test demonstrates that fixed parameters can be fixed to new
+	 * values even when they were defined as fixed in the design space
+	 * configuration.
+	 * @throws InPUTException
+	 */
+	@Test
+	public void fixedParametersCanBeFixedToNewValues() throws InPUTException {
+		final String designSpaceFile = "fixedRelativeSpace.xml";
+		DesignSpace space = new DesignSpace(designSpaceFile);
+		space.setFixed("A", "2");
+	}
+
+	/**
+	 * This test demonstrates that setting a fixed value bypasses range
+	 * checks. That is, a parameter can be set to an out-of-range value.
+	 * The only legal value for A is 2, but we can set it to 100.
+	 * @throws InPUTException
+	 */
+	@Test
+	public void setFixedBypassesRanges() throws InPUTException {
+		final String designSpaceFile = "possibleSpace.xml";
+		DesignSpace space = new DesignSpace(designSpaceFile);
+		space.setFixed("A", "100");
+		IDesign design = space.nextDesign("design");
+		assertEquals(100, design.getValue("A"));
+	}
 }
