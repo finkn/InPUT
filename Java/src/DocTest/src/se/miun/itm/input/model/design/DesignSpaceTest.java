@@ -22,6 +22,7 @@ package se.miun.itm.input.model.design;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
@@ -386,5 +387,58 @@ public class DesignSpaceTest {
 		final String designSpaceFile = "floatRangeSpace.xml";
 		DesignSpace space = new DesignSpace(designSpaceFile);
 		assertEquals("The only legal value should be 2.", 2, space.next("A"));
+	}
+
+	/**
+	 * This test demonstrates that the boolean literals are case insensitive.
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void boolLiteralsAreCaseInsensitive() throws InPUTException {
+		final String designSpaceFile = "boolParamSpace01.xml";
+		DesignSpace space = new DesignSpace(designSpaceFile);
+		String[] trueIds = { "A", "B", "C", "D", };
+		String[] falseIds = { "Z", "Y", "X", "W", };
+		allTrue(space, trueIds);
+		allFalse(space, falseIds);
+	}
+
+	/**
+	 * This test demonstrates that the only literal that evaluates to
+	 * {@code true} is "true" (ignoring case). Any other values evaluate
+	 * to {@code false}.
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void anythingButTrueEvaluatesToFalse() throws InPUTException {
+		final String designSpaceFile = "boolParamSpace02.xml";
+		DesignSpace space = new DesignSpace(designSpaceFile);
+		String[] falseIds = { "A", "B", "C", "D", "E", "F", };
+		allFalse(space, falseIds);
+	}
+
+	/**
+	 * This test demonstrates that boolean parameters can be defined
+	 * using a min and max range like any numeric type.
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void minAndMaxAreLegalForBooleans() throws InPUTException {
+		final String designSpaceFile = "boolParamSpace03.xml";
+		DesignSpace space = new DesignSpace(designSpaceFile);
+		space.next("A");
+	}
+
+	private void allTrue(DesignSpace space, String[] ids)
+			throws InPUTException {
+		for(String id : ids) {
+			assertTrue((boolean) space.next(id));
+		}
+	}
+	private void allFalse(DesignSpace space, String[] ids)
+			throws InPUTException {
+		for(String id : ids) {
+			assertFalse((boolean) space.next(id));
+		}
 	}
 }
