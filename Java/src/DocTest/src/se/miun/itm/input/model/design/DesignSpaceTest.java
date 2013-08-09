@@ -25,9 +25,11 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import org.junit.After;
 import org.junit.Test;
 
 import se.miun.itm.input.model.InPUTException;
+import se.miun.itm.input.model.param.ParamStore;
 
 /**
  * The following tests are explicitly meant as documentation tests.
@@ -41,6 +43,11 @@ import se.miun.itm.input.model.InPUTException;
  * @author Christoffer Fink
  */
 public class DesignSpaceTest {
+	@After
+	public void cleanup() {
+		ParamStore.releaseAllParamStores();
+	}
+
 	/**
 	 * This test fails to create a DesignSpace from the configuration
 	 * due to a circular dependency. The name of the first parameter
@@ -427,6 +434,151 @@ public class DesignSpaceTest {
 		final String designSpaceFile = "boolParamSpace03.xml";
 		DesignSpace space = new DesignSpace(designSpaceFile);
 		space.next("A");
+	}
+
+	/**
+	 * This test demonstrates that two DesignSpace objects created
+	 * in exactly the same way are not considered equal.
+	 * @see DesignTest#getSpaceReturnsOriginalSpace()
+	 * @see #
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void designSpaceEquality() throws InPUTException {
+		final String designSpaceFile = "testSpace.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+		IDesignSpace space2 = new DesignSpace(designSpaceFile);
+		// While they are really the same, the two design spaces are not
+		// identical (the same object), and they are not considered equal.
+		assertEquals(space.getId(), space2.getId());
+		assertEquals(space.getSupportedParamIds(),
+				space2.getSupportedParamIds());
+		assertEquals(space.toString(), space2.toString());
+		assertFalse(space.equals(space2));
+	}
+
+	/**
+	 * This test demonstrates that the design space of a design will be
+	 * modified if the design space that was used to create it is modified.
+	 * In other words, the two design spaces are kept in-sync.
+	 * @see DesignTest#getSpaceReturnsOriginalSpace()
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void changingDesignSpaceAffectsDesignsDesignSpace()
+			throws InPUTException {
+		final String designSpaceFile = "testSpace.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+		IDesign design = space.nextDesign("design");
+		// This is what we expect from the original design. (B > 3)
+		assertTrue(3 < (int) space.next("B"));
+		space.setFixed("B", "0");
+		// With the fixed value, B should always be 0.
+		assertEquals(0, space.next("B"));
+		// The design space inside the design has also been changed.
+		// This is true even though design doesn't return the same
+		// DesignSpace object that was used to create it.
+		space = design.getSpace();
+		assertEquals(0, space.next("B"));
+	}
+
+	/**
+	 * It is unclear what this test demonstrates.
+	 * It seems to show a disagreement between Design and DesignSpace
+	 * when it comes to interpreting the rules.
+	 * It is legal to fix a value to an illegal value.
+	 * It is generally the case (whether due to a fixed parameter or not)
+	 * that a design can be initialized with illegal values.
+	 * Changing a DesignSpace <em>after</em> a Design has been created
+	 * changes the Design as well. New values become legal or illegal.
+	 * However, only the values are taken into account. As far as "rules"
+	 * are concerned (in terms of the parameter definitions), these can
+	 * never be changed, which means that the Design always respects them
+	 * when trying to set the value of a parameter.
+	 *
+	 * It seems like the best strategy would be to either not allow
+	 * parameters to be fixed to arbitrary values, or make Design refuse
+	 * to be initialized with illegal values, the same way it refuses to
+	 * set illegal values once it has been initialized.
+	 * If it is indeed supposed to be possible to fix parameters to arbitrary
+	 * values, then Design should recognize this and disregard the rules
+	 * that would otherwise apply to that parameter (as long as it has a
+	 * fixed value).
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void designDependsOnSpace() throws InPUTException {
+		final String designSpaceFile = "testSpace.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+		IDesign design = space.nextDesign("pre-fix");
+		IDesignSpace space2 = design.getSpace();
+
+		// Need to fetch at least B here. Otherwise we get
+		// "could not process the expression 'B'."
+		// when doing setValue("A", 3) later.
+		int a = design.getValue("A");
+		int b = design.getValue("B");
+		// A is defined to be larger than B, which is larger than 3
+		// so it should be impossible to set it to 3. (3 is too small.)
+		try {
+			design.setValue("A", 3);
+			fail("Setting A to 3 should be impossible.");
+		} catch(IllegalArgumentException e) { }
+		// B was larger than 3, so A must be larger than 3 as well.
+		space.setFixed("B", "0");
+		// But now B isn't larger than 3 anymore.
+		// Setting A to 1 would conform to the rule that A > B.
+		try {
+			design.setValue("A", 1);
+			fail("Setting A to 1 is expected to fail even though A > B.");
+		} catch(IllegalArgumentException e) { }
+
+		// Let's do the same thing but using the DesignSpace from design.
+		space2.setFixed("B", "0");
+		// It still doesn't work.
+		try {
+			design.setValue("A", 1);
+			fail("Setting A to 1 is expected to fail even though A > B.");
+		} catch(IllegalArgumentException e) { }
+
+		// It looks like the design uses the parameter definitions it was
+		// created with, so the new fixed value of B in the design space
+		// is irrelevant. What matters is the initialized value. Then
+		// it would be possible to set the actual value instead, and let
+		// the original rules apply.
+		// We know that A is larger than B. (let's just check...)
+		assertTrue(a > b);
+		// Yep. So setting B to A and A to whatever larger than B should
+		// work just fine. However, B is now fixed, so that's a no go.
+		try {
+			design.setValue("B", a);
+		} catch(InPUTException e) {
+			String s = e.getMessage();
+			assertTrue(s.contains("not allowed by this fixed parameter"));
+		}
+		// The operation is illegal because B is fixed. So the changes
+		// to the design space are in effect after all.
+
+		// Then updating the design manually to match the design space
+		// should work. That would make B fixed to 0, and setting A to
+		// 1 would now be legal both according to the design space and
+		// according to the initialized values in the design.
+		// However, setting B to 0 violates the minimum limit.
+		try {
+			design.setValue("B", 0);
+		} catch(IllegalArgumentException e) { }
+		// So the original design space rules are in effect after all.
+		// In any case, the illegal value of 0 is exactly what the
+		// parameter would be initialized to.
+		design = space.nextDesign("post-fix");
+		assertEquals(0, design.getValue("B"));
+		// The general problem seems to be that design and design space
+		// aren't always on the same page when figuring out what values
+		// are legal. According to DesignSpace, 0 is legal. According to
+		// Design, 0 is not legal. B can be initialized to 0 but not set.
+		try {
+			design.setValue("B", 0);
+		} catch(IllegalArgumentException e) { }
 	}
 
 	private void allTrue(DesignSpace space, String[] ids)

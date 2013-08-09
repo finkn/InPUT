@@ -21,12 +21,15 @@ package se.miun.itm.input.model.design;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import org.junit.After;
 import org.junit.Test;
 
 import se.miun.itm.input.model.InPUTException;
+import se.miun.itm.input.model.param.ParamStore;
 
 /**
  * The following tests are explicitly meant as documentation tests.
@@ -40,6 +43,11 @@ import se.miun.itm.input.model.InPUTException;
  * @author Christoffer Fink
  */
 public class DesignTest {
+	@After
+	public void cleanup() {
+		ParamStore.releaseAllParamStores();
+	}
+
 	/**
 	 * This test arguably demonstrates a bug.
 	 * A is defined as being strictly bigger than B, yet A and B have the
@@ -70,7 +78,7 @@ public class DesignTest {
 		Design d = new Design(designFile);
 		try {
 			d.setValue("A", 6);
-			fail("Setting A without first setting B is expected to fail.");
+			fail("Setting A without first touching B is expected to fail.");
 		} catch(InPUTException e) { }
 	}
 	
@@ -205,5 +213,20 @@ public class DesignTest {
 		assertEquals(id1, id2);
 		// Yet, the two designs are not considered equal.
 		assertFalse(subsetDesign.equals(supersetDesign));
+	}
+
+	/**
+	 * This test demonstrates that {@link Design.getSpace()) returns
+	 * the same DesignSpace object that was used to create it.
+	 * However, this test is subject to some global caching.
+	 * Skipping cleanup (releasing ParamStores) makes this test fail.
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void getSpaceReturnsOriginalSpace() throws InPUTException {
+		final String designSpaceFile = "testSpace.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+		IDesign design = space.nextDesign("design");
+		assertSame(space, design.getSpace());
 	}
 }
