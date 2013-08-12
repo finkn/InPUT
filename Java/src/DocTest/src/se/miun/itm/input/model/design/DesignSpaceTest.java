@@ -440,7 +440,6 @@ public class DesignSpaceTest {
 	 * This test demonstrates that two DesignSpace objects created
 	 * in exactly the same way are not considered equal.
 	 * @see DesignTest#getSpaceReturnsOriginalSpace()
-	 * @see #
 	 * @throws InPUTException never
 	 */
 	@Test
@@ -579,6 +578,67 @@ public class DesignSpaceTest {
 		try {
 			design.setValue("B", 0);
 		} catch(IllegalArgumentException e) { }
+	}
+
+	/**
+	 * This test demonstrates that it is illegal to define a parameter
+	 * with multiple ranges if one or more min limits are missing.
+	 * Creating such a DesignSpace will throw an
+	 * ArrayIndexOutOfBoundsException.
+	 * @see #rangesWithMissingMaxFailRandomly()
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void rangesWithMissingMinIsIllegal() throws InPUTException {
+		final String designSpaceFile = "multirangeSpace01.xml";
+		try {
+			new DesignSpace(designSpaceFile);
+			fail("Expected DesignSpace creation with missing max to fail.");
+		} catch(ArrayIndexOutOfBoundsException e) { }
+	}
+
+	/**
+	 * This test demonstrates that a DesignSpace can be created if
+	 * one or more max limits are missing when defining a parameter with
+	 * multiple ranges.
+	 * Generating a value for such a parameter may either succeed or
+	 * throw an ArrayIndexOutOfBoundsException depending on chance.
+	 * @see #rangesWithMissingMinIsIllegal()
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void rangesWithMissingMaxFailRandomly() throws InPUTException {
+		final String designSpaceFile = "multirangeSpace02.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+
+		String msg = "Success rate out of range." +
+				"Try increasing the number of generated values.";
+		int values = 100;
+		int successA = countSuccess(space, "A", values);
+		int successB = countSuccess(space, "B", values);
+		// Expect roughly 20%. Check 10% < A < 30%.
+		int minA = 10 * values / 100;
+		int maxA = 30 * values / 100;
+		assertTrue(msg, successA > minA && successA < maxA);
+		// Expect roughly 80%. Check 70% < B < 90%.
+		int minB = 70 * values / 100;
+		int maxB = 90 * values / 100;
+		assertTrue(msg, successB > minB && successB < maxB);
+	}
+
+
+	// Generate values for id and count the successes.
+	// Calls space.next(id) values number of times. Returns the number
+	// of calls that did not throw an exception.
+	private int countSuccess(IDesignSpace space, String id, int values) {
+		int count = 0;
+		for(int i = 0; i < values; i++) {
+			try {
+				space.next(id);
+				count++;
+			} catch(Exception e) { }
+		}
+		return count;
 	}
 
 	private void allTrue(DesignSpace space, String[] ids)
