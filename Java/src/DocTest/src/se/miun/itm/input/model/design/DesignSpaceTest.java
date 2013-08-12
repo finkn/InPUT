@@ -53,6 +53,9 @@ public class DesignSpaceTest {
 	 * due to a circular dependency. The name of the first parameter
 	 * is parsed as a literal value rather than a reference to a param.
 	 * This results in a NumberFormatException.
+	 * @see #longerCircularDependencyCausesDifferentException()
+	 * @see #mixedCircularDependencyCausesException()
+	 * @see #twoUnrelatedGroupsOfParametersCauseError()
 	 * @throws InPUTException never
 	 */
 	@Test(expected=NumberFormatException.class)
@@ -67,6 +70,9 @@ public class DesignSpaceTest {
 	 * difference is that the chain consists of three parameters rather
 	 * than two. Creating the DesignSpace works fine in this case, but
 	 * using the space to create a Design does not work.
+	 * @see #shortCircularDependencyCausesException()
+	 * @see #mixedCircularDependencyCausesException()
+	 * @see #twoUnrelatedGroupsOfParametersCauseError()
 	 * @throws InPUTException never
 	 */
 	@Test
@@ -85,6 +91,8 @@ public class DesignSpaceTest {
 	 * as a relation, this circular dependency mixes all four kinds. The
 	 * chain is therefore four parameters long. The result is the same as
 	 * for the longerCircularDependency test.
+	 * @see #shortCircularDependencyCausesException()
+	 * @see #longerCircularDependencyCausesDifferentException()
 	 * @throws InPUTException never
 	 */
 	@Test
@@ -103,6 +111,8 @@ public class DesignSpaceTest {
 	 * works. The tests only fail when trying to create a Design. However,
 	 * including both groups of parameters prevents even the DesignSpace
 	 * from being created.
+	 * @see #shortCircularDependencyCausesException()
+	 * @see #longerCircularDependencyCausesDifferentException()
 	 * @throws InPUTException never
 	 */
 	@Test(expected=StackOverflowError.class)
@@ -140,8 +150,8 @@ public class DesignSpaceTest {
 
 	/**
 	 * This test confirms that it is impossible to create a DesignSpace
-	 * where a parameter has explicit overlapping restrictions (the min/max
-	 * limits leave no valid values).
+	 * where a parameter has explicit overlapping restrictions
+	 * (the min/max limits leave no valid values).
 	 * @throws InPUTException never
 	 */
 	@Test
@@ -166,6 +176,8 @@ public class DesignSpaceTest {
 	 * is impossible. Not only can a DesignSpace be created from this
 	 * configuration, a Design can also be created based on the DesignSpace.
 	 * A is initialized as expected, but B is initialized to an illegal value.
+	 * @see #setFixedBypassesRanges()
+	 * @see #designDependsOnSpace()
 	 * @throws InPUTException never
 	 */
 	@Test
@@ -211,6 +223,7 @@ public class DesignSpaceTest {
 	 * The difference is that the ranges are much bigger. In that test, A
 	 * can only be set to a single value in any case. Here, A and B can take
 	 * on many values, but should they?
+	 * @see #creatingDesignFromImpossibleDesignSpaceUnexpectedlyWorks()
 	 * @throws InPUTException never
 	 */
 	@Test
@@ -226,6 +239,8 @@ public class DesignSpaceTest {
 	/**
 	 * This test demonstrates that a parameter ID is allowed to contain
 	 * a dot.
+	 * @see #anArrayElementWithTheSameIdAsAnotherParameterTakesPrecedence()
+	 * @see #duplicateIDsAreLegal()
 	 * @throws InPUTException never
 	 */
 	@Test
@@ -240,6 +255,8 @@ public class DesignSpaceTest {
 	 * This test demonstrates that it is legal for an array element to
 	 * have the same ID as another parameter. Getting the value for such
 	 * a shared ID returns the array element.
+	 * @see #singleParameterWithDotInTheIdIsLegal()
+	 * @see #duplicateIDsAreLegal()
 	 * @throws InPUTException never
 	 */
 	@Test
@@ -256,6 +273,8 @@ public class DesignSpaceTest {
 	 * In other words, a DesignSpace can contain multiple parameters with
 	 * the same ID. It seems to be the case that the one that is declared
 	 * last is the one that remains.
+	 * @see #singleParameterWithDotInTheIdIsLegal()
+	 * @see #anArrayElementWithTheSameIdAsAnotherParameterTakesPrecedence()
 	 * @throws InPUTException never
 	 */
 	@Test
@@ -359,6 +378,7 @@ public class DesignSpaceTest {
 	 * This test demonstrates that setting a fixed value bypasses range
 	 * checks. That is, a parameter can be set to an out-of-range value.
 	 * The only legal value for A is 2, but we can set it to 100.
+	 * @see #designDependsOnSpace()
 	 * @throws InPUTException never
 	 */
 	@Test
@@ -398,6 +418,7 @@ public class DesignSpaceTest {
 
 	/**
 	 * This test demonstrates that the boolean literals are case insensitive.
+	 * @see #anythingButTrueEvaluatesToFalse()
 	 * @throws InPUTException never
 	 */
 	@Test
@@ -414,6 +435,7 @@ public class DesignSpaceTest {
 	 * This test demonstrates that the only literal that evaluates to
 	 * {@code true} is "true" (ignoring case). Any other values evaluate
 	 * to {@code false}.
+	 * @see #boolLiteralsAreCaseInsensitive()
 	 * @throws InPUTException never
 	 */
 	@Test
@@ -485,7 +507,7 @@ public class DesignSpaceTest {
 	 * It is unclear what this test demonstrates.
 	 * It seems to show a disagreement between Design and DesignSpace
 	 * when it comes to interpreting the rules.
-	 * It is legal to fix a value to an illegal value.
+	 * It is legal to fix a value to an out-of-range value.
 	 * It is generally the case (whether due to a fixed parameter or not)
 	 * that a design can be initialized with illegal values.
 	 * Changing a DesignSpace <em>after</em> a Design has been created
@@ -503,6 +525,7 @@ public class DesignSpaceTest {
 	 * values, then Design should recognize this and disregard the rules
 	 * that would otherwise apply to that parameter (as long as it has a
 	 * fixed value).
+	 * @see #setFixedBypassesRanges()
 	 * @throws InPUTException never
 	 */
 	@Test
@@ -613,7 +636,7 @@ public class DesignSpaceTest {
 
 		String msg = "Success rate out of range." +
 				"Try increasing the number of generated values.";
-		int values = 100;
+		int values = 200;
 		int successA = countSuccess(space, "A", values);
 		int successB = countSuccess(space, "B", values);
 		// Expect roughly 20%. Check 10% < A < 30%.
