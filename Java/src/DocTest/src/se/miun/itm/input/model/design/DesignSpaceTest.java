@@ -649,6 +649,37 @@ public class DesignSpaceTest {
 		assertTrue(msg, successB > minB && successB < maxB);
 	}
 
+	/**
+	 * This test demonstrates that it is not possible to define a parameter
+	 * with multiple ranges ("1,5", "2,7") with references to other
+	 * parameters. So defining A using inclMin="1,B" is illegal.
+	 * @see #multiRangesCannotIncludeExpressions()
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void multiRangesCannotIncludeDependencies() throws InPUTException {
+		final String designSpaceFile = "multirangeSpace03.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+		try {
+			space.next("A");
+			fail("Ranges cannot include references to other parameters.");
+		} catch(InPUTException e) { }
+	}
+
+	/**
+	 * This test demonstrates that it is not possible to define a parameter
+	 * with multiple ranges using expressions, even if they do not
+	 * reference any other parameters.
+	 * @see #multiRangesCannotIncludeDependencies()
+	 * @throws InPUTException
+	 */
+	@Test
+	public void multiRangesCannotIncludeExpressions() throws InPUTException {
+		final String designSpaceFile = "multirangeSpace04.xml";
+		try {
+			new DesignSpace(designSpaceFile);
+		} catch(NumberFormatException e) { }
+	}
 
 	// Generate values for id and count the successes.
 	// Calls space.next(id) values number of times. Returns the number
