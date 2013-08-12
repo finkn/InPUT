@@ -37,7 +37,7 @@ import se.miun.itm.input.model.param.ParamStore;
  * the tested behavior is the right behavior, in the sense that this
  * is what the program is supposed to do. These tests are intended to
  * document what the program in fact does, given some corner cases.
- * 
+ * <p>
  * See the configuration files for more detailed comments.
  * 
  * @author Christoffer Fink
@@ -218,6 +218,7 @@ public class DesignSpaceTest {
 	 * space, the D parameter can only be initialized to a valid value if A
 	 * and B are both set to 0. C, on the other hand, can never be set to
 	 * a valid value.
+	 * <p>
 	 * This test is similar to the
 	 * creatingDesignFromImpossibleDesignSpaceUnexpectedlyWorks test above.
 	 * The difference is that the ranges are much bigger. In that test, A
@@ -507,6 +508,7 @@ public class DesignSpaceTest {
 	 * It is unclear what this test demonstrates.
 	 * It seems to show a disagreement between Design and DesignSpace
 	 * when it comes to interpreting the rules.
+	 * <p>
 	 * It is legal to fix a value to an out-of-range value.
 	 * It is generally the case (whether due to a fixed parameter or not)
 	 * that a design can be initialized with illegal values.
@@ -516,11 +518,12 @@ public class DesignSpaceTest {
 	 * are concerned (in terms of the parameter definitions), these can
 	 * never be changed, which means that the Design always respects them
 	 * when trying to set the value of a parameter.
-	 *
+	 * <p>
 	 * It seems like the best strategy would be to either not allow
 	 * parameters to be fixed to arbitrary values, or make Design refuse
 	 * to be initialized with illegal values, the same way it refuses to
 	 * set illegal values once it has been initialized.
+	 * <p>
 	 * If it is indeed supposed to be possible to fix parameters to arbitrary
 	 * values, then Design should recognize this and disregard the rules
 	 * that would otherwise apply to that parameter (as long as it has a
@@ -624,6 +627,7 @@ public class DesignSpaceTest {
 	 * This test demonstrates that a DesignSpace can be created if
 	 * one or more max limits are missing when defining a parameter with
 	 * multiple ranges.
+	 * <p>
 	 * Generating a value for such a parameter may either succeed or
 	 * throw an ArrayIndexOutOfBoundsException depending on chance.
 	 * @see #rangesWithMissingMinIsIllegal()
