@@ -317,6 +317,32 @@ public class DesignSpaceTest {
 	}
 
 	/**
+	 * This test demonstrates that evaluating a single parameter reference
+	 * will fail. In other words, if an expression consists only of a
+	 * parameter name and no other operators, then the expression
+	 * cannot be evaluated.
+	 * <p>
+	 * This means that, if a parameter should be defined simply in terms
+	 * of another parameter, then it must still be part of some larger
+	 * NOP expression. "C + 0" is one solution. "C * 1" is another.
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void bareParameterReferencesAreNotEvaluated() throws InPUTException {
+		final String designSpaceFile = "referenceSpace.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+		try {
+			// inclMax="C" does not work.
+			space.next("A");
+			fail("Expected: could not process the expression 'C' exception");
+		} catch(InPUTException e) { }
+		// inclMax="B+0" does work.
+		assertEquals(1, space.next("B"));
+		// Primitive limits. This is always expected to work.
+		assertEquals(1, space.next("C"));
+	}
+
+	/**
 	 * This test demonstrates that fixed parameters cannot be set to an
 	 * expression. The expression isn't evaluated and thus causes a
 	 * NumberFormatException.
@@ -330,6 +356,48 @@ public class DesignSpaceTest {
 			space.nextDesign("design id");
 			fail("Creating the design is expected to fail.");
 		} catch(NumberFormatException e) { }
+	}
+
+	/**
+	 * This test demonstrates a bug.
+	 * While a design is correctly initialized according to the design
+	 * space, the design space does not return the correct value when
+	 * calling {@code next}.
+	 * <p>
+	 * The design space will gladly generate illegal values. Any parameter
+	 * references seem to evaluate to 0. Then the rest of the expression
+	 * is evaluated accordingly.
+	 * <p>
+	 * In both cases, the design is properly initialized and will always
+	 * return the expected values.
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void nextDoesNotProduceTheCorrectValueForExpressions()
+			throws InPUTException {
+		final String designSpaceFile = "relativeSpace.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+		IDesign design = space.nextDesign("design");
+
+		// Confirming that both are "fixed".
+		assertEquals("X should be fixed", 2, space.next("X"));
+		assertEquals("Y should be limited", 2, space.next("Y"));
+
+		// Both are defined to be twice as large as X and Y.
+		// Yet both are 0.
+		assertEquals("Expected A to be the wrong value.", 0, space.next("A"));
+		assertEquals("Expected B to be the wrong value.", 0, space.next("B"));
+
+		// These two are defined with an expression and a literal.
+		// Their range is limited to 4, yet they generate random values.
+		checkRandomness(space, "C");
+		checkRandomness(space, "D");
+
+		// This works (using design) but using space.next() does not.
+		assertEquals("A should be limited to X*2", 4, design.getValue("A"));
+		assertEquals("B should be limited to Y*2", 4, design.getValue("B"));
+		assertEquals("C should always be 4", 4, design.getValue("C"));
+		assertEquals("D should always be 4", 4, design.getValue("D"));
 	}
 
 	/**
@@ -685,6 +753,57 @@ public class DesignSpaceTest {
 		} catch(NumberFormatException e) { }
 	}
 
+	/**
+	 * This test demonstrates that the array elements can have exactly
+	 * the same restrictions as regular parameters.
+	 * <p>
+	 * Array elements can be defined using expressions or multiple ranges.
+	 * @see #nextDoesNotProduceTheCorrectValueForExpressions()
+	 * @throws InPUTException
+	 */
+	@Test
+	public void integerArraysWithExpressionsAndMultipleRanges()
+			throws InPUTException {
+		final String designSpaceFile = "arraySpace01.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+		int a[] = space.next("A"); // OK
+		int b[] = space.next("B"); // OK
+		int c[] = space.next("C"); // OK
+		int d[] = space.next("D"); // Wrong!
+
+		// All of these tests demonstrate expected behavior.
+		assertEquals("Z has the wrong value.", 5, space.next("Z"));
+		for(int n : a) { assertEquals(1, n); }
+		for(int n : b) { assertEquals(2, n); }
+		int oneCount = 0;
+		int twoCount = 0;
+		for(int n : c) {
+			if(n == 1) {
+				oneCount++;
+			} else if(n == 2) {
+				twoCount++;
+			} else {
+				fail(n + " is neither 1 nor 2!");
+			}
+		}
+		assertTrue("Got no value from the first range",	oneCount > 0);
+		assertTrue("Got no value from the second range", twoCount > 0);
+
+		// These tests demonstrate unexpected behavior.
+		// space.next() doesn't work for expressions.
+		for(int n : d) {
+			assertEquals("D is expected to be wrong.", -2, n);
+		}
+		// Need to create a design to get D properly initialized.
+		IDesign design = space.nextDesign("D");
+		d = design.getValue("D");
+
+		// Once a design has been created, everything works.
+		for(int n : d) {
+			assertEquals("Elements of D have the wrong value.", 3, n);
+		}
+	}
+
 	// Generate values for id and count the successes.
 	// Calls space.next(id) values number of times. Returns the number
 	// of calls that did not throw an exception.
@@ -710,5 +829,25 @@ public class DesignSpaceTest {
 		for(String id : ids) {
 			assertFalse((boolean) space.next(id));
 		}
+	}
+
+	// Fetch a parameter multiple times and assert that it will be
+	// different at least once.
+	private void checkRandomness(IDesignSpace space, String id)
+			throws InPUTException {
+		checkRandomness(space, id, 10);
+	}
+	private void checkRandomness(IDesignSpace space, String id, int tests)
+			throws InPUTException {
+		assertTrue("Run more than one test!", tests > 1);
+		Object oldValue = space.next(id);
+		for(int i = 1; i < tests; i++) {
+			Object value = space.next(id);
+			if(!value.equals(oldValue)) {
+				return;
+			}
+			oldValue = value;
+		}
+		fail("Got the same value " + tests + " times.");
 	}
 }
