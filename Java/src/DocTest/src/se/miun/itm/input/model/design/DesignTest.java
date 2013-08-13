@@ -21,6 +21,7 @@ package se.miun.itm.input.model.design;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -228,5 +229,139 @@ public class DesignTest {
 		IDesignSpace space = new DesignSpace(designSpaceFile);
 		IDesign design = space.nextDesign("design");
 		assertSame(space, design.getSpace());
+	}
+
+	/**
+	 * This test demonstrates that, when an array element is set ("A.1.1"),
+	 * this does not update the array ("A.1").
+	 * @see #settingAnArrayDoesNotUpdateElements()
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void settingAnArrayElementDoesNotUpdateTheArray()
+			throws InPUTException {
+		final String designSpaceFile = "arraySpace02.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+		IDesign design = space.nextDesign("design");
+
+		int[][] a = design.getValue("A");
+
+		// Set to a different value.
+		int element = a[0][0] == 0 ? 1 : 0;
+		design.setValue("A.1.1", element);
+		// The array the was returned for "A" has not been updated.
+		assertFalse(element == a[0][0]);
+		// Fetch the array again. The new value isn't in this array either.
+		a = design.getValue("A");
+		assertFalse(element == a[0][0]);
+
+		// Confirm that the "A.1.1" parameter was set.
+		assertEquals(element, design.getValue("A.1.1"));
+	}
+
+	/**
+	 * This test demonstrates that, when an array element is assigned
+	 * (a[0][0] = 0), this does not update the parameter
+	 * ("A" or "A.1.1" are unaffected).
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void assigningAnArrayElementDoesNotUpdateTheParameter()
+			throws InPUTException {
+		final String designSpaceFile = "arraySpace02.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+		IDesign design = space.nextDesign("design");
+
+		int[][] a = design.getValue("A");
+
+		// Set to a different value.
+		int element = a[0][0] == 0 ? 1 : 0;
+		a[0][0] = element;
+		// Fetch the array again. The new value isn't in this array.
+		a = design.getValue("A");
+		assertFalse(element == a[0][0]);
+
+		// The "A.1.1" parameter was not set.
+		assertFalse(element == (int) design.getValue("A.1.1"));
+	}
+
+	/**
+	 * This test demonstrates that setting an array ("A.1") does not
+	 * update the elements of the array ("A.1.1").
+	 * @see #settingAnArrayElementDoesNotUpdateTheArray()
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void settingAnArrayDoesNotUpdateElements() throws InPUTException {
+		final String designSpaceFile = "arraySpace02.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+		IDesign design = space.nextDesign("design");
+
+		int[] data = { 0, 0, 0, };
+		design.setValue("A.1", data);
+		// The A.1 array, which is an element of A, has been updated. 
+		int[][] a = design.getValue("A");
+		for(int n : a[0]) {
+			assertEquals("Expected the array to match.", 0, n);
+		}
+		// That one should happen to be 0 by chance is highly unlikely.
+		// That two are 0 is, to a first approximation, impossible.
+		// Unless, of course, the A.1.x ID doesn't actually access the
+		// A.1 array.
+		assertFalse(0 == (int) design.getValue("A.1.1"));
+		assertFalse(0 == (int) design.getValue("A.1.2"));
+	}
+
+	/**
+	 * This test confirms that it is illegal to set an array element to
+	 * an out-of-range value.
+	 * @see #settingArraysBypassesRanges()
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void settingArrayElementsToIllegalValuesIsIllegal()
+			throws InPUTException {
+		final String designSpaceFile = "arraySpace02.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+		IDesign design = space.nextDesign("design");
+		try {
+			design.setValue("A.1.1", -1);
+			fail("Should not be able to set an element to an illegal value.");
+		} catch(IllegalArgumentException e) { }
+	}
+
+	/**
+	 * This test demonstrates that array elements can be set to
+	 * out-of-range values by setting the whole array.
+	 * @see #settingArrayElementsToIllegalValuesIsIllegal()
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void settingArraysBypassesRanges() throws InPUTException {
+		final String designSpaceFile = "arraySpace02.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+		IDesign design = space.nextDesign("design");
+
+		// Setting all values in A.1 to illegal values.
+		int[] data = { -1, -1, -1, };
+		design.setValue("A.1", data);
+		int[][] a = design.getValue("A");
+		// Confirm that the illegal values were set.
+		assertEquals(-1, a[0][0]);
+	}
+
+	/**
+	 * This test demonstrates that parameter access works fine when a
+	 * parameter ID starts the same way as the ID of an array element.
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void parameterNameWithDotsAndArrayWorksAsExpected()
+			throws InPUTException {
+		final String designSpaceFile = "arraySpace03.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+		IDesign design = space.nextDesign("design");
+		assertNotNull(design.getValue("A.1.1"));
+		assertNotNull(design.getValue("A.1.1.1"));
 	}
 }
