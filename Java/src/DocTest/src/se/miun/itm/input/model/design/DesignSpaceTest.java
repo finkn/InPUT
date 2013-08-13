@@ -21,9 +21,12 @@ package se.miun.itm.input.model.design;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.Test;
@@ -802,6 +805,41 @@ public class DesignSpaceTest {
 		for(int n : d) {
 			assertEquals("Elements of D have the wrong value.", 3, n);
 		}
+	}
+
+	/**
+	 * This test demonstrates that the set of supported parameter IDs that
+	 * a DesignSpace returns does not include the IDs of array elements.
+	 * @see DesignTest#supportedParamIdsIncludeArrayElements()
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void supportedParamIdsDoNotIncludeArrayElements()
+			throws InPUTException {
+		final String designSpaceFile = "arraySpace03.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+		Set<String> ids = space.getSupportedParamIds();
+
+		assertTrue(ids.contains("A"));			// Array.
+		assertFalse(ids.contains("A.1"));		// Array and element.
+		assertFalse(ids.contains("A.1.1"));		// Element.
+		assertTrue(ids.contains("A.1.1.1"));	// Regular parameter.
+	}
+
+	/**
+	 * This test demonstrates that calling {@code next()} on a
+	 * DesignSpace does not work for array elements. It does work for
+	 * top-level arrays, however (but not for arrays that are themselves
+	 * elements of another array).
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void nextDoesNotGenerateArrayElements() throws InPUTException {
+		final String designSpaceFile = "arraySpace02.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+		assertNotNull(space.next("A"));
+		assertNull(space.next("A.1"));
+		assertNull(space.next("A.1.1"));
 	}
 
 	// Generate values for id and count the successes.

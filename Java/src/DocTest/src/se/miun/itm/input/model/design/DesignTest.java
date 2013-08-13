@@ -26,6 +26,8 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Set;
+
 import org.junit.After;
 import org.junit.Test;
 
@@ -363,5 +365,24 @@ public class DesignTest {
 		IDesign design = space.nextDesign("design");
 		assertNotNull(design.getValue("A.1.1"));
 		assertNotNull(design.getValue("A.1.1.1"));
+	}
+
+	/**
+	 * This test demonstrates that the set of supported parameter IDs
+	 * that a Design returns includes the IDs of array elements.
+	 * @see DesignSpaceTest#supportedParamIdsDoNotIncludeArrayElements()
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void supportedParamIdsIncludeArrayElements() throws InPUTException {
+		final String designSpaceFile = "arraySpace03.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+		IDesign design = space.nextDesign("design");
+		Set<String> ids = design.getSupportedParamIds();
+
+		assertTrue(ids.contains("A"));			// Array.
+		assertTrue(ids.contains("A.1"));		// Array and element.
+		assertTrue(ids.contains("A.1.1"));		// Element.
+		assertTrue(ids.contains("A.1.1.1"));	// Regular parameter.
 	}
 }
