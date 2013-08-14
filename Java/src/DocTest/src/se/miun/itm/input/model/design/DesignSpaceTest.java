@@ -26,11 +26,14 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Set;
 
 import org.junit.After;
 import org.junit.Test;
 
+import se.miun.itm.input.export.XMLFileExporter;
 import se.miun.itm.input.model.InPUTException;
 import se.miun.itm.input.model.param.ParamStore;
 
@@ -840,6 +843,30 @@ public class DesignSpaceTest {
 		assertNotNull(space.next("A"));
 		assertNull(space.next("A.1"));
 		assertNull(space.next("A.1.1"));
+	}
+
+	/**
+	 * This test demonstrates that the documentation for IDesignSpace
+	 * is not entirely accurate regarding {@link IDesignSpace#isFile()}.
+	 * @throws InPUTException never
+	 * @throws IOException never
+	 */
+	@Test
+	public void isFileWorksTooSensiblyColonP()
+			throws InPUTException, IOException {
+		final String designSpaceFile = "testSpace.xml";
+		FileInputStream in = new FileInputStream(designSpaceFile);
+		// Create design space from a file.
+		IDesignSpace space = new DesignSpace(in);
+
+		// This sort of makes sense, but it's not really what the
+		// interface specification says.
+		assertFalse(space.isFile());
+		final String tmpFile = "tmp.xml";
+		XMLFileExporter exporter = new XMLFileExporter(tmpFile);
+		space.export(exporter);
+		// Surely this design space is backed by a file now?
+		assertFalse(space.isFile());
 	}
 
 	// Generate values for id and count the successes.
