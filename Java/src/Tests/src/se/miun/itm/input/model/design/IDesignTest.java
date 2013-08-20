@@ -58,14 +58,11 @@ public abstract class IDesignTest extends AbstractInPUTTest {
 
 	protected IDesign design;
 
-	@Test
-	public void testSetReadOnly() {
+	@Test(expected=InPUTException.class)
+	public void testSetReadOnly() throws InPUTException{
 		design.setReadOnly();
-		try {
-			design.setValue("SomeBoolean", false);
-			fail("Read-only should disallow the setting of values!");
-		} catch (InPUTException e) {
-		}
+		design.setValue("SomeBoolean", false);
+		fail("Read-only should disallow the setting of values!");
 	}
 
 	@Test
@@ -281,13 +278,15 @@ public abstract class IDesignTest extends AbstractInPUTTest {
 		assertEquals(value, customizableGetter, PRECISION);
 		assertEquals(value, parent.andTheCustomizableGetter(), PRECISION);
 	}
-	
 
 	@Test
 	public void testSetCustomizedGetter() throws InPUTException {
 		double value = 0.5;
-		design.setValue("CustomizableInputDemonstrator.CustomizableSetGetPrimitive", value);
 		SomeCommonStructural parent = design.getValue("CustomizableInputDemonstrator");
+		assertNotSame(value, parent.andTheCustomizableGetter());
+		design.setValue("CustomizableInputDemonstrator.CustomizableSetGetPrimitive", value);
+		assertEquals(parent.andTheCustomizableGetter(), value, PRECISION);
+		parent = design.getValue("CustomizableInputDemonstrator");
 		assertEquals(value, parent.andTheCustomizableGetter(), PRECISION);
 	}
 	

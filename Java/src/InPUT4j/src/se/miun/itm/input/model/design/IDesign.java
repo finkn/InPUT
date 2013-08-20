@@ -16,27 +16,7 @@ PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIG
 HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *//*-- $Copyright (C) 2012 Felix Dobslaw$
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is furnished
-to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-
-package se.miun.itm.input.model.design;
+ */package se.miun.itm.input.model.design;
 
 import se.miun.itm.input.aspects.Exportable;
 import se.miun.itm.input.aspects.Identifiable;
@@ -107,9 +87,16 @@ public interface IDesign extends Identifiable, Exportable, Valuable,
 	void extendScope(IDesign neighbor);
 
 	/**
-	 * compares if two designs are defining the same configuration; not necessarily having the same id, and are not necessarily equal.
-	 * @param obj
-	 * @return
+	 * Compares the two sets of parameters in the designs.
+	 * The two designs need not be equal or even have the same ID to be
+	 * considered the "same".
+	 * @param obj the other design
+	 * @return {@code true} if {@code obj} is a Design, the set of parameters
+	 * in {@code this} is a subset of the set of parameters in {@code obj} and
+	 * the parameters in their intersection have the same value in both
+	 * designs.
 	 */
 	boolean same(Object obj);
+	
+	IDesign toClone() throws InPUTException;
 }

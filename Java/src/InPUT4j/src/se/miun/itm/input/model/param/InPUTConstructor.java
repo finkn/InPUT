@@ -182,7 +182,7 @@ public class InPUTConstructor {
 			if (!contextConstructors.get(j).getParameterTypes()[i].equals(context))
 				toRemove.add(j);
 
-		int index;
+		Integer index;
 		for (int j = toRemove.size() - 1; j >= 0; j--) {
 			index = toRemove.get(j);
 			contextConstructors.remove(index);
@@ -318,9 +318,11 @@ public class InPUTConstructor {
 	public static Class<?> getClassFromMethodReturnType(String identifier, Param<?> parentParam, ParamStore ps) throws InPUTException {
 		String[] chops = identifier.split(Pattern.quote("."));
 		String methodId = chops[chops.length - 1];
+		methodId = methodId.substring(0, methodId.length()-2);
 
-		String paramId = identifier.substring(0, identifier.length() - (methodId.length() + 1));
+		String paramId = identifier.substring(0, identifier.length() - (methodId.length() + 3));
 
+		//TODO get param from the global context, including refered design spaces, which are obviously not included in the ps
 		Param<?> param = ParamUtil.getParamForId(paramId, parentParam, ps);
 
 		Class<?> cLass = param.getInPUTClass();
