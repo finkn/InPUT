@@ -58,8 +58,8 @@ public abstract class IDesignTest extends AbstractInPUTTest {
 
 	protected IDesign design;
 
-	@Test
-	public void testSetReadOnly() {
+	@Test(expected=InPUTException.class)
+	public void testSetReadOnly() throws InPUTException{
 		design.setReadOnly();
 		design.setValue("SomeBoolean", false);
 		fail("Read-only should disallow the setting of values!");
