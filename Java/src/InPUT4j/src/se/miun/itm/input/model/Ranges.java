@@ -429,7 +429,7 @@ public class Ranges {
 
 		Comparable<?>[] extremas = evaluatedRanges.getStrongTypedMax();
 
-		if (extremas.length == 0)
+		if (extremas == null || extremas.length == 0)
 			return;
 		
 		Comparable<?> violated = null;
@@ -439,7 +439,7 @@ public class Ranges {
 				break;
 			}
 		}
-
+		
 		if (violated != null)
 			throw new IllegalArgumentException(spaceId
 					+ ": The entered value \"" + theValue
@@ -453,7 +453,7 @@ public class Ranges {
 
 		Comparable<?>[] extremas = evaluatedRanges.getStrongTypedMin();
 
-		if (extremas.length == 0)
+		if (extremas == null || extremas.length == 0)
 			return;
 
 		Comparable<?> violated = null;
