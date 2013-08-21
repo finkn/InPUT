@@ -898,6 +898,46 @@ public class ExtendedDesignSpaceTest {
 		assertFalse(space.isFile());
 	}
 
+	/**
+	 * This test demonstrates that a nested parameter (inside a SParam)
+	 * can depend on other parameters.
+	 * <p>
+	 * Due to peculiarities demonstrated in
+	 * {@link #nextDoesNotProduceTheCorrectValueForExpressions()},
+	 * a design must be created so that parameters are properly initialized.
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void nestedParametersCanReferenceOuterParameters()
+			throws InPUTException {
+		final String designSpaceFile = "nestedDependentParamSpace.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+		IDesign design = space.nextDesign("design");
+
+		int n = design.getValue("Integer");
+		assertEquals(4, n);
+	}
+
+	/**
+	 * This test demonstrates that a nested parameter (inside a SParam)
+	 * is over shadowed by an outer parameter if they have the same name.
+	 * <p>
+	 * Due to peculiarities demonstrated in
+	 * {@link #nextDoesNotProduceTheCorrectValueForExpressions()},
+	 * a design must be created so that parameters are properly initialized.
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void outerParametersOverShadowsNestedParameters()
+			throws InPUTException {
+		final String designSpaceFile = "duplicateIdSpace03.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+		IDesign design = space.nextDesign("design");
+
+		int n = design.getValue("Integer");
+		assertEquals(1, n);
+	}
+
 	// Generate values for id and count the successes.
 	// Calls space.next(id) values number of times. Returns the number
 	// of calls that did not throw an exception.

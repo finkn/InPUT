@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<i:DesignSpace
+    id="nestedDependent"
+    mapping="nestedDependentParamMapping.xml"
+    xmlns:i="http://TheInPUT.org/DesignSpace"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://TheInPUT.org/DesignSpace http://theinput.org/DesignSpace.xsd">
+
+    <!--
+        The inner parameter "PrimitiveInteger" is defined relative to the
+        outer primitive parameter A.
+    -->
+    <i:NParam type="integer" id="A" inclMin="2" inclMax="2" />
+    <i:SParam id="Integer">
+        <i:NParam
+            id="PrimitiveInteger"
+            type="integer"
+            inclMin="A * 2"
+            inclMax="A * 2"
+            />
+    </i:SParam>
+
+</i:DesignSpace>
