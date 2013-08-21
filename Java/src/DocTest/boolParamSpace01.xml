@@ -7,7 +7,8 @@
 
     <!--
         Checking the case sensitivity of boolean values.
-        All these spellings are legal.
+        Only "true" and "false" are legal values. The other spellings
+        are accepted, but they result in a normal unfixed parameter.
     -->
 
     <i:NParam type="boolean" id="A" fixed="True" />
