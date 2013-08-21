@@ -48,7 +48,7 @@ import se.miun.itm.input.model.param.ParamStore;
  * 
  * @author Christoffer Fink
  */
-public class DesignSpaceTest {
+public class ExtendedDesignSpaceTest {
 	@After
 	public void cleanup() {
 		ParamStore.releaseAllParamStores();
