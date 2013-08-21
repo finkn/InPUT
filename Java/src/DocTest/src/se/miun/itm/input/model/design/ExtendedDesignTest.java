@@ -385,4 +385,22 @@ public class ExtendedDesignTest {
 		assertTrue(ids.contains("A.1.1"));		// Element.
 		assertTrue(ids.contains("A.1.1.1"));	// Regular parameter.
 	}
+
+	/**
+	 * This test demonstrates that setting a dependent parameter value
+	 * will evaluate its dependencies while checking ranges, and throw
+	 * a NullPointerException if the referenced parameter is not yet
+	 * initialized (which is the case for an empty design).
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void nullEmptyDesignsHaveNullReferences() throws InPUTException {
+		final String designSpaceFile = "nullReferenceSpace.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+		IDesign design = space.nextEmptyDesign("design");
+		try {
+			design.setValue("B", 3);
+			fail("Expected setValue to try to evaluate A, which is null.");
+		} catch(NullPointerException e) { }
+	}
 }
