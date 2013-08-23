@@ -9,5 +9,13 @@
         id="Integer"
         type="java.lang.Integer"
         constructor="PrimitiveInteger" />
+    <i:Mapping
+        id="IndependentInteger"
+        type="java.lang.Integer"
+        constructor="B" />
+    <i:Mapping
+        id="DependentInteger"
+        type="java.lang.Integer"
+        constructor="C" />
 
 </i:CodeMappings>

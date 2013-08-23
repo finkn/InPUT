@@ -9,6 +9,9 @@
     <!--
         The inner parameter "PrimitiveInteger" is defined relative to the
         outer primitive parameter A.
+
+        The inner parameter "C" in "DependentInteger" is defined relative
+        to the inner parameter "B" in "IndependentInteger".
     -->
     <i:NParam type="integer" id="A" inclMin="2" inclMax="2" />
     <i:SParam id="Integer">
@@ -18,6 +21,17 @@
             inclMin="A * 2"
             inclMax="A * 2"
             />
+    </i:SParam>
+
+    <i:SParam id="IndependentInteger">
+        <i:NParam id="B" type="integer" inclMin="1" inclMax="1" />
+    </i:SParam>
+
+    <i:SParam id="DependentInteger">
+        <i:NParam
+            id="C" type="integer"
+            inclMin="IndependentInteger.B * 2"
+            inclMax="IndependentInteger.B * 2" />
     </i:SParam>
 
 </i:DesignSpace>

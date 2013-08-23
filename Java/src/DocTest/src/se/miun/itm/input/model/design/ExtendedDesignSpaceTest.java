@@ -35,6 +35,7 @@ import org.junit.Test;
 
 import se.miun.itm.input.export.XMLFileExporter;
 import se.miun.itm.input.model.InPUTException;
+import se.miun.itm.input.model.mapping.Mappings;
 import se.miun.itm.input.model.param.ParamStore;
 
 /**
@@ -52,6 +53,7 @@ public class ExtendedDesignSpaceTest {
 	@After
 	public void cleanup() {
 		ParamStore.releaseAllParamStores();
+		Mappings.releaseAllMappings();
 	}
 
 	/**
@@ -900,7 +902,8 @@ public class ExtendedDesignSpaceTest {
 
 	/**
 	 * This test demonstrates that a nested parameter (inside a SParam)
-	 * can depend on other parameters.
+	 * can depend on other parameters, even if they are also nested
+	 * inside some SParam.
 	 * <p>
 	 * Due to peculiarities demonstrated in
 	 * {@link #nextDoesNotProduceTheCorrectValueForExpressions()},
@@ -908,14 +911,15 @@ public class ExtendedDesignSpaceTest {
 	 * @throws InPUTException never
 	 */
 	@Test
-	public void nestedParametersCanReferenceOuterParameters()
+	public void nestedParametersCanReferenceOtherParameters()
 			throws InPUTException {
 		final String designSpaceFile = "nestedDependentParamSpace01.xml";
 		IDesignSpace space = new DesignSpace(designSpaceFile);
 		IDesign design = space.nextDesign("design");
 
-		int n = design.getValue("Integer");
-		assertEquals(4, n);
+		assertEquals(1, design.getValue("IndependentInteger"));
+		assertEquals(2, design.getValue("DependentInteger"));
+		assertEquals(4, design.getValue("Integer"));
 	}
 
 	/**
