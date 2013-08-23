@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <i:DesignSpace
     id="duplicateIdSpace03"
-    mapping="nestedDependentParamMapping.xml"
+    mapping="nestedDependentParamMapping01.xml"
     xmlns:i="http://TheInPUT.org/DesignSpace"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://TheInPUT.org/DesignSpace http://theinput.org/DesignSpace.xsd">

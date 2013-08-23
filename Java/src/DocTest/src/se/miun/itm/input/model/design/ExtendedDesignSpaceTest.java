@@ -910,7 +910,7 @@ public class ExtendedDesignSpaceTest {
 	@Test
 	public void nestedParametersCanReferenceOuterParameters()
 			throws InPUTException {
-		final String designSpaceFile = "nestedDependentParamSpace.xml";
+		final String designSpaceFile = "nestedDependentParamSpace01.xml";
 		IDesignSpace space = new DesignSpace(designSpaceFile);
 		IDesign design = space.nextDesign("design");
 
