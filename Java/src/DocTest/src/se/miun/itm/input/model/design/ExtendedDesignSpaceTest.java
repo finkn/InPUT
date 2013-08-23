@@ -1038,21 +1038,6 @@ public class ExtendedDesignSpaceTest {
 		return count;
 	}
 
-	private void allTrue(DesignSpace space, String[] ids)
-			throws InPUTException {
-		for(String id : ids) {
-			String msg = id + " did not produce a True value.";
-			assertTrue(msg, (boolean) space.next(id));
-		}
-	}
-	private void allFalse(DesignSpace space, String[] ids)
-			throws InPUTException {
-		for(String id : ids) {
-			String msg = id + " did not produce a False value.";
-			assertFalse(msg, (boolean) space.next(id));
-		}
-	}
-
 	// Fetch a parameter multiple times and assert that it will be
 	// the same every time (fixed).
 	private void checkConstancy(IDesignSpace space, String id)
