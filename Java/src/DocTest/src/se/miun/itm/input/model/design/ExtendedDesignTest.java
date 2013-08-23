@@ -403,4 +403,29 @@ public class ExtendedDesignTest {
 			fail("Expected setValue to try to evaluate A, which is null.");
 		} catch(NullPointerException e) { }
 	}
+
+	/**
+	 * This test demonstrates that a Design can be extended by itself and
+	 * also by {@code null}. In addition, the Design can be extended by
+	 * the same other Design multiple times (whether the extending design
+	 * is a different one or the extended Design itself).
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void nullAndSelfCanExtendDesign() throws InPUTException {
+		final String subsetDesignFile = "subsetDesign.xml";
+		final String supersetFile = "supersetDesign01.xml";
+		final IDesign design = new Design(subsetDesignFile);
+		final IDesign superset = new Design(supersetFile);
+		design.extendScope(null);
+		// Extend twice by itself.
+		design.extendScope(design);
+		design.extendScope(design);
+		// Extend twice by a proper different design.
+		design.extendScope(superset);
+		design.extendScope(superset);
+		// Crude test to check that nothing broke.
+		assertEquals(2, design.getValue("A"));
+		assertEquals(4, design.getValue("C"));
+	}
 }
