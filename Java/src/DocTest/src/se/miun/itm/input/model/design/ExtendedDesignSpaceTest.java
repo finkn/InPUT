@@ -30,6 +30,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Set;
 
+import model.Complex;
+
 import org.junit.After;
 import org.junit.Test;
 
@@ -981,6 +983,45 @@ public class ExtendedDesignSpaceTest {
 		// DependentInteger.B is defined to be 2 x IndependentInteger.A,
 		// which would be 10, yet it is 0.
 		assertEquals(0, dependent);
+	}
+
+	/**
+	 * This test demonstrates that nested parameters do not get their
+	 * dependencies properly resolved. In particular, SParams that
+	 * depend on each other cannot be correctly initialized even though
+	 * their nested NParams form a terminated dependency chain and
+	 * should be successfully initialized.
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void chainedDependenciesAreTreatedAsCircularDependencies()
+			throws InPUTException {
+		final String designSpaceFile = "nestedDependentParamSpace03.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+		IDesign design = space.nextDesign("design");
+
+		// First depends on Second, which depends on First.
+		// (But not in a circular way!)
+		Complex first = design.getValue("FirstComplex");
+		Complex second = design.getValue("SecondComplex");
+		// Should really be 2+8i and 4+1i.
+		assertEquals(2.0, first.getReal(), 0.0);
+		assertEquals(0.0, first.getImaginary(), 0.0);
+		assertEquals(0.0, second.getReal(), 0.0);
+		assertEquals(1.0, second.getImaginary(), 0.0);
+
+		// Third depends in itself. (But not in a circular way!)
+		Complex third = design.getValue("ThirdComplex");
+		// Should really be 2+1i.
+		assertEquals(0.0, third.getReal(), 0.0);
+		assertEquals(1.0, third.getImaginary(), 0.0);
+
+		// Fourth depends on both Third and Second, which is OK, because
+		// no circular dependency is perceived in this case.
+		Complex fourth = design.getValue("FourthComplex");
+		// This is the only one that is correct.
+		assertEquals(3.0, fourth.getReal(), 0.0);
+		assertEquals(2.0, fourth.getImaginary(), 0.0);
 	}
 
 	// Generate values for id and count the successes.

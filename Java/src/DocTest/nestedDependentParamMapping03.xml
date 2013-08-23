@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<i:CodeMappings
+    id="nestedDependentMapping"
+    xmlns:i="http://TheInPUT.org/CodeMappings"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://TheInPUT.org/CodeMappings http://theinput.org/CodeMappings.xsd">
+
+    <i:Mapping
+        id="FirstComplex"
+        type="model.Complex"
+        constructor="A B" />
+    <i:Mapping
+        id="SecondComplex"
+        type="model.Complex"
+        constructor="C D" />
+    <i:Mapping
+        id="ThirdComplex"
+        type="model.Complex"
+        constructor="E F" />
+    <i:Mapping
+        id="FourthComplex"
+        type="model.Complex"
+        constructor="G H" />
+
+</i:CodeMappings>
