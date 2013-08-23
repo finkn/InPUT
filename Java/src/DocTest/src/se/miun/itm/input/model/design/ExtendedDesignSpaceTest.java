@@ -960,6 +960,29 @@ public class ExtendedDesignSpaceTest {
 		assertTrue(space02.next("Number") instanceof Integer);
 	}
 
+	/**
+	 * This test combines the
+	 * {@link #outerParametersOverShadowsNestedParameters()} and the
+	 * {@link #nestedParametersCanReferenceOtherParameters()} tests.
+	 * None of the two structural parameters are initialized to the
+	 * expected value because there are two different "A" parameters.
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void overShadowingAndNestedParameterReferencesAreStrange()
+			throws InPUTException {
+		final String designSpaceFile = "nestedDependentParamSpace02.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+		IDesign design = space.nextDesign("design");
+		int independent = design.getValue("IndependentInteger");
+		int dependent = design.getValue("DependentInteger");
+		// IndependentInteger.A is defined to be 1, yet it is 5.
+		assertEquals(5, independent);
+		// DependentInteger.B is defined to be 2 x IndependentInteger.A,
+		// which would be 10, yet it is 0.
+		assertEquals(0, dependent);
+	}
+
 	// Generate values for id and count the successes.
 	// Calls space.next(id) values number of times. Returns the number
 	// of calls that did not throw an exception.
