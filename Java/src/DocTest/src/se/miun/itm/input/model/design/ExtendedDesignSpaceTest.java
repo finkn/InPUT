@@ -938,6 +938,24 @@ public class ExtendedDesignSpaceTest {
 		assertEquals(1, n);
 	}
 
+	/**
+	 * This test demonstrates that objects are cached based in ID.
+	 * In this case, two code mappings share the same ID, which causes
+	 * a parameter to be mapped to the wrong type.
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void mappingsAreCachedById() throws InPUTException {
+		final String designSpaceFile01 = "duplicateMappingIdSpace01.xml";
+		final String designSpaceFile02 = "duplicateMappingIdSpace02.xml";
+		IDesignSpace space01 = new DesignSpace(designSpaceFile01);
+		IDesignSpace space02 = new DesignSpace(designSpaceFile02);
+
+		// Note that, in 02, "Number" is mapped to a Double, not Integer.
+		assertTrue(space01.next("Number") instanceof Integer);
+		assertTrue(space02.next("Number") instanceof Integer);
+	}
+
 	// Generate values for id and count the successes.
 	// Calls space.next(id) values number of times. Returns the number
 	// of calls that did not throw an exception.

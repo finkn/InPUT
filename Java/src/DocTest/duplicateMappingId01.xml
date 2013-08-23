@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<i:CodeMappings
+    id="duplicateMapping"
+    xmlns:i="http://TheInPUT.org/CodeMappings"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://TheInPUT.org/CodeMappings http://theinput.org/CodeMappings.xsd">
+
+    <!--
+        This CodeMapping has the same ID as the mapping in
+        duplicateMappingId02.xml. If two different design spaces are created
+        with these two mappings, then they will interfere with each other.
+        The two mappings are used by duplicateMappingIdSpace 01 and 02.
+        Both define a structured parameter with the ID "Number".
+
+        It is clear that when the second space is created, and the
+        referenced code mapping is imported, the existing mapping is used
+        because the ID already exists.
+
+        The parameters can be initialized, but the wrong mapping is used.
+        This means that both parameters are java.lang.Integer, even though
+        one is mapped to a java.lang.Double.
+
+        Changing the type of "Param" to double will cause an InPUTException.
+        The first mapping is in effect, which uses an Integer. Therefore,
+        passing a double as a constructor parameter is illegal. Hence the
+        exception.
+    -->
+
+    <i:Mapping
+        id="Number"
+        type="java.lang.Integer"
+        constructor="Param" />
+
+</i:CodeMappings>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<i:CodeMappings
+    id="duplicateMapping"
+    xmlns:i="http://TheInPUT.org/CodeMappings"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://TheInPUT.org/CodeMappings http://theinput.org/CodeMappings.xsd">
+
+    <!-- See comment in duplicateMappingId01.xml -->
+    <!-- This mapping will be ignored due to the ID collision. -->
+
+    <i:Mapping
+        id="Number"
+        type="java.lang.Double"
+        constructor="Param" />
+
+</i:CodeMappings>
