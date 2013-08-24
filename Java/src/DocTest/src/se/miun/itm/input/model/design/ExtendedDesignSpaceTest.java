@@ -30,11 +30,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Set;
 
+import model.Complex;
+
 import org.junit.After;
 import org.junit.Test;
 
 import se.miun.itm.input.export.XMLFileExporter;
 import se.miun.itm.input.model.InPUTException;
+import se.miun.itm.input.model.mapping.Mappings;
 import se.miun.itm.input.model.param.ParamStore;
 
 /**
@@ -54,6 +57,7 @@ public class ExtendedDesignSpaceTest {
 	@After
 	public void cleanup() {
 		ParamStore.releaseAllParamStores();
+		Mappings.releaseAllMappings();
 	}
 
 	/**
@@ -62,7 +66,7 @@ public class ExtendedDesignSpaceTest {
 	 * This test fails to create a DesignSpace from the configuration
 	 * due to a circular dependency. The name of the first parameter
 	 * is parsed as a literal value rather than a reference to a param.
-	 * This results in a NumberFormatException.
+	 * This results in an InPUTException.
 	 * @see #longerCircularDependencyCausesDifferentException()
 	 * @see #mixedCircularDependencyCausesException()
 	 * @see #twoUnrelatedGroupsOfParametersCauseError()
@@ -93,7 +97,6 @@ public class ExtendedDesignSpaceTest {
 		final String designSpaceFile = "circularDependencySpace02.xml";
 		DesignSpace space = new DesignSpace(designSpaceFile);
 		fail("Trying to create the Design was supposed to fail.");
-//			space.nextDesign("design");
 	}
 
 	/**
@@ -129,7 +132,7 @@ public class ExtendedDesignSpaceTest {
 	 * @see #longerCircularDependencyCausesDifferentException()
 	 * @throws InPUTException never
 	 */
-	@Test(expected=Exception.class)
+	@Test(expected=InPUTException.class)
 	public void twoUnrelatedGroupsOfParametersCauseError()
 			throws InPUTException {
 		final String designSpaceFile = "circularDependencySpace04.xml";
@@ -156,9 +159,9 @@ public class ExtendedDesignSpaceTest {
 		// However, when generating an empty design, even F is null.
 		IDesign empty = space.nextEmptyDesign("empty");
 		assertNull("F must be null in an empty Design.", empty.getValue("F"));
-		
+
 		empty.setValue("F", 43);
-		
+
 		// Confirm that F is indeed fixed.
 		try {
 			empty.setValue("F", 2);
@@ -206,7 +209,7 @@ public class ExtendedDesignSpaceTest {
 	public void creatingDesignFromImpossibleDesignSpaceUnexpectedlyWorks()
 			throws InPUTException {
 		final String designSpaceFile = "impossibleSpace04.xml";
-		
+
 		try {
 			DesignSpace space = new DesignSpace(designSpaceFile);
 			fail("invalid range design space should not be able to get created.");
@@ -226,7 +229,6 @@ public class ExtendedDesignSpaceTest {
 				fail("Cannot re-set B to the same value.");
 			} catch(IllegalArgumentException e) { }
 		} catch (Exception e) {
-			
 		}
 	}
 
@@ -264,6 +266,7 @@ public class ExtendedDesignSpaceTest {
 		IDesign design = space.nextDesign("design");
 		final long a = design.getValue("A");
 		final long b = design.getValue("B");
+        // This may fail, but it is highly unlikely.
 		assertEquals(0,a);
 		assertEquals(0,b);
 	}
@@ -281,8 +284,6 @@ public class ExtendedDesignSpaceTest {
 	public void singleParameterWithDotInTheIdIsLegal() throws InPUTException {
 		final String designSpaceFile = "dottedNameSpace01.xml";
 		DesignSpace space = new DesignSpace(designSpaceFile);
-//		IDesign design = space.nextDesign("design");
-//		assertEquals(43, design.getValue("A.1.2.3"));
 	}
 
 	/**
@@ -300,8 +301,6 @@ public class ExtendedDesignSpaceTest {
 			throws InPUTException {
 		final String designSpaceFile = "dottedNameSpace02.xml";
 		DesignSpace space = new DesignSpace(designSpaceFile);
-//		IDesign design = space.nextDesign("design");
-//		assertEquals(10, design.getValue("A.1"));
 	}
 
 	/**
@@ -316,7 +315,7 @@ public class ExtendedDesignSpaceTest {
 	@Test
 	public void duplicateIDsAreLegal() throws InPUTException {
 		final String designSpaceFile = "duplicateIdSpace01.xml";
-		
+
 		try {
 			DesignSpace space = new DesignSpace(designSpaceFile);
 			fail("illegal design space definition.");
@@ -389,23 +388,24 @@ public class ExtendedDesignSpaceTest {
 	}
 
 	/**
-	 * This test demonstrates that fixed parameters cannot be set to an
-	 * expression. The expression isn't evaluated and thus causes a
-	 * NumberFormatException.
+	 * This test demonstrates that fixed parameters can be set to an
+	 * expression, but that this expression will not be evaluated.
+	 * A DesignSpace and even a Design can be created, but the parameters
+	 * aren't actually fixed, so they will generate random values.
+	 * @see #invalidBooleanExpressionsAreIgnored()
 	 * @throws InPUTException never
 	 */
 	@Test
 	public void fixedParametersAreNotEvaluated() throws InPUTException {
 		final String designSpaceFile = "fixedRelativeSpace.xml";
 		DesignSpace space = new DesignSpace(designSpaceFile);
-		try {
-			IDesign design = space.nextDesign("design id");
-			int a = design.getValue("A");
-			int c = design.getValue("C");
-			
-			assertEquals(43, a);
-			assertEquals(86, c);
-		} catch(NumberFormatException e) { }
+		space.nextDesign("design id");
+
+		assertEquals(space.next("A"), 43);
+		// Only A is actually fixed. B and C return random values.
+		checkConstancy(space, "A");
+		checkRandomness(space, "B");
+		checkRandomness(space, "C");
 	}
 
 	/**
@@ -539,33 +539,57 @@ public class ExtendedDesignSpaceTest {
 	}
 
 	/**
-	 * This test demonstrates that the boolean literals are case insensitive.
-	 * @see #anythingButTrueEvaluatesToFalse()
+	 * This test demonstrates that the boolean literals are case sensitive.
+	 * Only "true" and "false" are valid values.
+	 * @see #invalidBooleanExpressionsAreIgnored()
 	 * @throws InPUTException never
 	 */
 	@Test
-	public void boolLiteralsAreCaseInsensitive() throws InPUTException {
+	public void booleanLiteralsAreCaseSensitive()
+			throws InPUTException {
 		final String designSpaceFile = "boolParamSpace01.xml";
 		DesignSpace space = new DesignSpace(designSpaceFile);
-		String[] trueIds = { "A", "B", "C", "D", };
-		String[] falseIds = { "Z", "Y", "X", "W", };
-		allTrue(space, trueIds);
-		allFalse(space, falseIds);
+		String[] invalidIds = { "A", "C", "D", "Z", "X", "W", };
+		String[] fixedIds = { "Y", "B", };
+
+		// "true" and "false".
+		assertTrue((boolean) space.next("B"));
+		assertFalse((boolean) space.next("Y"));
+		for(String id : fixedIds) {
+			checkConstancy(space, id);
+		}
+		for(String id : invalidIds) {
+			checkRandomness(space, id);
+		}
 	}
 
 	/**
-	 * This test demonstrates that the only literal that evaluates to
-	 * {@code true} is "true" (ignoring case). Any other values evaluate
-	 * to {@code false}.
-	 * @see #boolLiteralsAreCaseInsensitive()
+	 * This test demonstrates that a boolean parameter can only be fixed to
+	 * a valid boolean expression, which can only be one of "true", "false",
+	 * or a number (which will always be false).
+	 * @see #booleanLiteralsAreCaseSensitive()
 	 * @throws InPUTException never
 	 */
 	@Test
-	public void anythingButTrueEvaluatesToFalse() throws InPUTException {
+	public void invalidBooleanExpressionsAreIgnored() throws InPUTException {
 		final String designSpaceFile = "boolParamSpace02.xml";
 		DesignSpace space = new DesignSpace(designSpaceFile);
-		String[] falseIds = { "A", "B", "C", "D", "E", "F", };
-		allFalse(space, falseIds);
+		String[] invalidIds = {
+				"G", "H", "I", "J", "K", "L", "M", "N", "O",
+		};
+		String[] falseIds = { "B", "C", "D", "E", "F", };
+		String trueId = "A"; // Only one true.
+
+		assertTrue((boolean) space.next(trueId));
+		// These are valid but false.
+		for(String id : falseIds) {
+			checkConstancy(space, id);
+			assertFalse((boolean) space.next(id));
+		}
+		// These are invalid and therefore random.
+		for(String id : invalidIds) {
+			checkRandomness(space, id, 100);
+		}
 	}
 
 	/**
@@ -918,6 +942,128 @@ public class ExtendedDesignSpaceTest {
 		assertFalse(space.isFile());
 	}
 
+	/**
+	 * This test demonstrates that a nested parameter (inside a SParam)
+	 * can depend on other parameters, even if they are also nested
+	 * inside some SParam.
+	 * <p>
+	 * Due to peculiarities demonstrated in
+	 * {@link #nextDoesNotProduceTheCorrectValueForExpressions()},
+	 * a design must be created so that parameters are properly initialized.
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void nestedParametersCanReferenceOtherParameters()
+			throws InPUTException {
+		final String designSpaceFile = "nestedDependentParamSpace01.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+		IDesign design = space.nextDesign("design");
+
+		assertEquals(1, design.getValue("IndependentInteger"));
+		assertEquals(2, design.getValue("DependentInteger"));
+		assertEquals(4, design.getValue("Integer"));
+	}
+
+	/**
+	 * This test demonstrates that a nested parameter (inside a SParam)
+	 * is over shadowed by an outer parameter if they have the same name.
+	 * <p>
+	 * Due to peculiarities demonstrated in
+	 * {@link #nextDoesNotProduceTheCorrectValueForExpressions()},
+	 * a design must be created so that parameters are properly initialized.
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void outerParametersOverShadowsNestedParameters()
+			throws InPUTException {
+		final String designSpaceFile = "duplicateIdSpace03.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+		IDesign design = space.nextDesign("design");
+
+		int n = design.getValue("Integer");
+		assertEquals(1, n);
+	}
+
+	/**
+	 * This test demonstrates that objects are cached based in ID.
+	 * In this case, two code mappings share the same ID, which causes
+	 * a parameter to be mapped to the wrong type.
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void mappingsAreCachedById() throws InPUTException {
+		final String designSpaceFile01 = "duplicateMappingIdSpace01.xml";
+		final String designSpaceFile02 = "duplicateMappingIdSpace02.xml";
+		IDesignSpace space01 = new DesignSpace(designSpaceFile01);
+		IDesignSpace space02 = new DesignSpace(designSpaceFile02);
+
+		// Note that, in 02, "Number" is mapped to a Double, not Integer.
+		assertTrue(space01.next("Number") instanceof Integer);
+		assertTrue(space02.next("Number") instanceof Integer);
+	}
+
+	/**
+	 * This test combines the
+	 * {@link #outerParametersOverShadowsNestedParameters()} and the
+	 * {@link #nestedParametersCanReferenceOtherParameters()} tests.
+	 * None of the two structural parameters are initialized to the
+	 * expected value because there are two different "A" parameters.
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void overShadowingAndNestedParameterReferencesAreStrange()
+			throws InPUTException {
+		final String designSpaceFile = "nestedDependentParamSpace02.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+		IDesign design = space.nextDesign("design");
+		int independent = design.getValue("IndependentInteger");
+		int dependent = design.getValue("DependentInteger");
+		// IndependentInteger.A is defined to be 1, yet it is 5.
+		assertEquals(5, independent);
+		// DependentInteger.B is defined to be 2 x IndependentInteger.A,
+		// which would be 10, yet it is 0.
+		assertEquals(0, dependent);
+	}
+
+	/**
+	 * This test demonstrates that nested parameters do not get their
+	 * dependencies properly resolved. In particular, SParams that
+	 * depend on each other cannot be correctly initialized even though
+	 * their nested NParams form a terminated dependency chain and
+	 * should be successfully initialized.
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void chainedDependenciesAreTreatedAsCircularDependencies()
+			throws InPUTException {
+		final String designSpaceFile = "nestedDependentParamSpace03.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+		IDesign design = space.nextDesign("design");
+
+		// First depends on Second, which depends on First.
+		// (But not in a circular way!)
+		Complex first = design.getValue("FirstComplex");
+		Complex second = design.getValue("SecondComplex");
+		// Should really be 2+8i and 4+1i.
+		assertEquals(2.0, first.getReal(), 0.0);
+		assertEquals(0.0, first.getImaginary(), 0.0);
+		assertEquals(0.0, second.getReal(), 0.0);
+		assertEquals(1.0, second.getImaginary(), 0.0);
+
+		// Third depends in itself. (But not in a circular way!)
+		Complex third = design.getValue("ThirdComplex");
+		// Should really be 2+1i.
+		assertEquals(0.0, third.getReal(), 0.0);
+		assertEquals(1.0, third.getImaginary(), 0.0);
+
+		// Fourth depends on both Third and Second, which is OK, because
+		// no circular dependency is perceived in this case.
+		Complex fourth = design.getValue("FourthComplex");
+		// This is the only one that is correct.
+		assertEquals(3.0, fourth.getReal(), 0.0);
+		assertEquals(2.0, fourth.getImaginary(), 0.0);
+	}
+
 	// Generate values for id and count the successes.
 	// Calls space.next(id) values number of times. Returns the number
 	// of calls that did not throw an exception.
@@ -932,16 +1078,22 @@ public class ExtendedDesignSpaceTest {
 		return count;
 	}
 
-	private void allTrue(DesignSpace space, String[] ids)
+	// Fetch a parameter multiple times and assert that it will be
+	// the same every time (fixed).
+	private void checkConstancy(IDesignSpace space, String id)
 			throws InPUTException {
-		for(String id : ids) {
-			assertTrue((boolean) space.next(id));
-		}
+		checkConstancy(space, id, 10);
 	}
-	private void allFalse(DesignSpace space, String[] ids)
+
+	private void checkConstancy(IDesignSpace space, String id, int tests)
 			throws InPUTException {
-		for(String id : ids) {
-			assertFalse((boolean) space.next(id));
+		assertTrue("Run more than one test!", tests > 1);
+		Object oldValue = space.next(id);
+		for(int i = 1; i < tests; i++) {
+			String msg = "Got a different value after " + i + " tries.";
+			Object value = space.next(id);
+			assertEquals(msg, oldValue, value);
+			oldValue = value;
 		}
 	}
 
@@ -962,6 +1114,6 @@ public class ExtendedDesignSpaceTest {
 			}
 			oldValue = value;
 		}
-		fail("Got the same value " + tests + " times.");
+		fail("Got the same value " + tests + " times for " + id + ".");
 	}
 }

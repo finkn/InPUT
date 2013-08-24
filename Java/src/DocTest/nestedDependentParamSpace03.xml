@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<i:DesignSpace
+    id="nestedDependent"
+    mapping="nestedDependentParamMapping03.xml"
+    xmlns:i="http://TheInPUT.org/DesignSpace"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://TheInPUT.org/DesignSpace http://theinput.org/DesignSpace.xsd">
+
+    <!--
+        This test contains three dependency patterns.
+        Fourth exists as a sort of lemma.
+
+        First and Second Complex:
+        The nested parameters inside both of the outer SParams depend on
+        inner NParams in the other SParam. In other words, the two SParams
+        are circularly dependent on each other. However, the inner
+        parameters are NOT in fact circularly dependent, since the chain
+        of dependencies terminates at SecondComplex.D.
+
+        The result is that some of the inner parameters are not initialized.
+        Which ones are or are not initialized is most likely a product of
+        chance, depending on which parameters happen to be chosen first.
+
+        Third Complex:
+        One of the inner parameters depends on another inner parameter
+        (within the same SParam). This does not work, even though the
+        third case (ForthComplex) demonstrates that an inner parameter
+        can reference other nested parameters. Apparently, the referenced
+        parameter just cannot be nested inside the same SParam.
+    -->
+    <i:SParam id="FirstComplex">
+        <!-- Dependent on another nested parameter. Should be 2 -->
+        <i:NParam id="A" type="integer"
+            inclMin="SecondComplex.D * 2"
+            inclMax="SecondComplex.D * 2"
+        />
+        <!-- Dependent on another nested parameter. Should be 8 -->
+        <i:NParam id="B" type="integer"
+            inclMin="SecondComplex.C * 2"
+            inclMax="SecondComplex.C * 2"
+        />
+    </i:SParam>
+    <i:SParam id="SecondComplex">
+        <!-- Dependent on another nested parameter. Should be 4 -->
+        <i:NParam id="C" type="integer"
+            inclMin="FirstComplex.A * 2"
+            inclMax="FirstComplex.A * 2"
+        />
+        <!-- Independent. Should be 1 -->
+        <i:NParam id="D" type="integer" inclMin="1" inclMax="1" />
+    </i:SParam>
+
+    <i:SParam id="ThirdComplex">
+        <!-- Dependent on a locally nested parameter. Should be 2 -->
+        <i:NParam id="E" type="integer"
+            inclMin="ThirdComplex.F * 2"
+            inclMax="ThirdComplex.F * 2"
+        />
+        <!-- Independent. Should be 1 -->
+        <i:NParam id="F" type="integer" inclMin="1" inclMax="1" />
+    </i:SParam>
+
+    <i:SParam id="FourthComplex">
+        <!-- Dependent on another nested parameter. Should be 3 -->
+        <i:NParam id="G" type="integer"
+            inclMin="ThirdComplex.F * 3"
+            inclMax="ThirdComplex.F * 3"
+        />
+        <!-- Dependent on another nested parameter. Should be 2 -->
+        <i:NParam id="H" type="integer"
+            inclMin="SecondComplex.D * 2"
+            inclMax="SecondComplex.D * 2"
+        />
+    </i:SParam>
+
+</i:DesignSpace>

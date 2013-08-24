@@ -6,14 +6,31 @@
     xsi:schemaLocation="http://TheInPUT.org/DesignSpace http://theinput.org/DesignSpace.xsd" >
 
     <!--
-        All of these fixed literals evaluate to false.
+        The only valid, true boolean expression is "true".
+        In addition to "false", any number is also a valid false boolean.
     -->
 
-    <i:NParam type="boolean" id="A" fixed="1" />
-    <i:NParam type="boolean" id="B" fixed="0" />
-    <i:NParam type="boolean" id="C" fixed="-1" />
-    <i:NParam type="boolean" id="D" fixed="hello" />
-    <i:NParam type="boolean" id="E" fixed="" />
-    <i:NParam type="boolean" id="F" fixed="1 == 1" />
+    <i:NParam type="boolean" id="A" fixed="true" />
+    <i:NParam type="boolean" id="B" fixed="1" />
+    <i:NParam type="boolean" id="C" fixed="0" />
+    <i:NParam type="boolean" id="D" fixed="-1" />
+    <i:NParam type="boolean" id="E" fixed="3" />
+    <i:NParam type="boolean" id="F" fixed="false" />
+
+    <!--
+        These could potentially be interpreted as boolean values.
+        They are not valid in InPUT.
+        This means that these parameters will not be fixed. They will
+        generate random boolean values.
+    -->
+    <i:NParam type="boolean" id="G" fixed="hello" />
+    <i:NParam type="boolean" id="H" fixed="" />
+    <i:NParam type="boolean" id="I" fixed="1 == 1" />
+    <i:NParam type="boolean" id="J" fixed="True" />
+    <i:NParam type="boolean" id="K" fixed="TRUE" />
+    <i:NParam type="boolean" id="L" fixed="tRUe" />
+    <i:NParam type="boolean" id="M" fixed="False" />
+    <i:NParam type="boolean" id="N" fixed="FALSE" />
+    <i:NParam type="boolean" id="O" fixed="fALESe" />
 
 </i:DesignSpace>

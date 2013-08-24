@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<i:DesignSpace
+    id="nullReferlenceSpace"
+    xmlns:i="http://TheInPUT.org/DesignSpace"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://TheInPUT.org/DesignSpace http://theinput.org/DesignSpace.xsd" >
+
+    <!--
+        B references A, so when setting a value for B, the expression
+        "A + 2" must be evaluated, which involves accessing the value
+        of A. However, when creating an empty design, all parameters
+        are initialized to null. This means that B can be set before A
+        has a value, and doing so will cause a NullPointerException.
+    -->
+    <i:NParam type="integer" id="A" inclMin="1" inclMax="2" />
+    <i:NParam type="integer" id="B" inclMin="A + 2" />
+
+</i:DesignSpace>

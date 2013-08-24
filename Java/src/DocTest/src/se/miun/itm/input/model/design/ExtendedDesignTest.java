@@ -80,12 +80,9 @@ public class ExtendedDesignTest {
 			throws InPUTException {
 		final String designFile = "outOfRangeDesign02.xml";
 		Design d = new Design(designFile);
-//		try {
-			d.setValue("A", 6);
-			int value = d.getValue("A");
-			assertEquals(6, value);
-//			fail("Setting A without first touching B is expected to fail.");
-//		} catch(InPUTException e) { }
+		d.setValue("A", 6);
+		int value = d.getValue("A");
+		assertEquals(6, value);
 	}
 	
 	/**
@@ -401,11 +398,7 @@ public class ExtendedDesignTest {
 		try {
 			IDesignSpace space = new DesignSpace(designSpaceFile);
 			fail("no dots in param ids, and it wasnt validated and found!");
-//			IDesign design = space.nextDesign("design");
-//			assertNotNull(design.getValue("A.1.1"));
-//			assertNotNull(design.getValue("A.1.1.1"));
 		} catch (Exception e) {
-			
 		}
 	}
 
@@ -423,18 +416,8 @@ public class ExtendedDesignTest {
 		try {
 			IDesignSpace space = new DesignSpace(designSpaceFile);
 			fail("parameters contain dots and that is not validated!");
-//			IDesign design = space.nextDesign("design");
-//			Set<String> ids = design.getSupportedParamIds();
-//			
-//			assertTrue(ids.contains("A"));			// Array.
-//			assertTrue(ids.contains("A.1"));		// Array and element.
-//			assertTrue(ids.contains("A.1.1"));		// Element.
-//			assertTrue(ids.contains("A.1.1.1"));	// Regular parameter.
-			
 		} catch (Exception e) {
-			
 		}
-		
 	}
 	
 	public static void main(String[] args) {
@@ -442,5 +425,48 @@ public class ExtendedDesignTest {
 		a.put("a", "b");
 		a = Collections.unmodifiableMap(a);
 		a.put("a", "c");
+	}
+
+	/**
+	 * This test demonstrates that setting a dependent parameter value
+	 * will evaluate its dependencies while checking ranges, and throw
+	 * a NullPointerException if the referenced parameter is not yet
+	 * initialized (which is the case for an empty design).
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void nullEmptyDesignsHaveNullReferences() throws InPUTException {
+		final String designSpaceFile = "nullReferenceSpace.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+		IDesign design = space.nextEmptyDesign("design");
+		try {
+			design.setValue("B", 3);
+			fail("Expected setValue to try to evaluate A, which is null.");
+		} catch(NullPointerException e) { }
+	}
+
+	/**
+	 * This test demonstrates that a Design can be extended by itself and
+	 * also by {@code null}. In addition, the Design can be extended by
+	 * the same other Design multiple times (whether the extending design
+	 * is a different one or the extended Design itself).
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void nullAndSelfCanExtendDesign() throws InPUTException {
+		final String subsetDesignFile = "subsetDesign.xml";
+		final String supersetFile = "supersetDesign01.xml";
+		final IDesign design = new Design(subsetDesignFile);
+		final IDesign superset = new Design(supersetFile);
+		design.extendScope(null);
+		// Extend twice by itself.
+		design.extendScope(design);
+		design.extendScope(design);
+		// Extend twice by a proper different design.
+		design.extendScope(superset);
+		design.extendScope(superset);
+		// Crude test to check that nothing broke.
+		assertEquals(2, design.getValue("A"));
+		assertEquals(4, design.getValue("C"));
 	}
 }

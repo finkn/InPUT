@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<i:DesignSpace
+    id="nestedDependent"
+    mapping="nestedDependentParamMapping02.xml"
+    xmlns:i="http://TheInPUT.org/DesignSpace"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://TheInPUT.org/DesignSpace http://theinput.org/DesignSpace.xsd">
+
+    <!--
+        The nested parameter DependentInteger.B depends on the nested
+        parameter Independent.A. This normally works, but in this case
+        there also exists an outer "A" parameter which will over shadow
+        IndependentInteger.A.
+
+        IndependentInteger will therefore be initialized to an Integer
+        wrapping the value 5 rather than the value 1.
+        The parameter A that is nested inside IndependentInteger will
+        apparently not be initialized at all or at least somehow receive
+        the value 0, which will cause DependentInteger to be initialized
+        to an Integer wrapping the value 0*2 = 0 rather than the value 2.
+
+        Perhaps the code mapping should deal with nested parameters using
+        their absolute names.
+    -->
+    <i:NParam id="A" type="integer" inclMin="5" inclMax="5" />
+
+    <i:SParam id="IndependentInteger">
+        <i:NParam id="A" type="integer" inclMin="1" inclMax="1" />
+    </i:SParam>
+
+    <i:SParam id="DependentInteger">
+        <i:NParam
+            id="B" type="integer"
+            inclMin="IndependentInteger.A * 2"
+            inclMax="IndependentInteger.A * 2" />
+    </i:SParam>
+
+</i:DesignSpace>

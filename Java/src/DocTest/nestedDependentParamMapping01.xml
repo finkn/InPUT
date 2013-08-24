@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<i:CodeMappings
+    id="nestedDependentMapping"
+    xmlns:i="http://TheInPUT.org/CodeMappings"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://TheInPUT.org/CodeMappings http://theinput.org/CodeMappings.xsd">
+
+    <i:Mapping
+        id="Integer"
+        type="java.lang.Integer"
+        constructor="PrimitiveInteger" />
+    <i:Mapping
+        id="IndependentInteger"
+        type="java.lang.Integer"
+        constructor="B" />
+    <i:Mapping
+        id="DependentInteger"
+        type="java.lang.Integer"
+        constructor="C" />
+
+</i:CodeMappings>

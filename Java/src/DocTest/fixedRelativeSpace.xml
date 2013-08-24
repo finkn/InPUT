@@ -6,11 +6,14 @@
 	xsi:schemaLocation="http://TheInPUT.org/DesignSpace http://theinput.org/DesignSpace.xsd" >
 
     <!--
-        Both parameters are fixed, but one is defined to a fixed value in
-        relation to the other parameter. However, fixed parameter values
-        aren't evaluated, so the expression is illegal.
+        All parameters are fixed, but two are fixed to an expression.
+        Trying to fix a parameter is legal but ineffective.
+        B and C will not have their expressions evaluated, and they
+        will not actually be fixed.
     -->
-	<i:NParam type="integer" id="A" fixed="43"/>
+    <i:NParam type="integer" id="A" fixed="43"/>
+    <!-- An expression that does not depend on another parameter. -->
+	<i:NParam type="integer" id="B" fixed="43 * 2" />
     <!-- Try to make C twice as big as A. -->
 	<i:NParam type="integer" id="C" fixed="A * 2" />
 

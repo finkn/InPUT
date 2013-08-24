@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<i:DesignSpace
+    id="duplicateIdSpace03"
+    mapping="nestedDependentParamMapping01.xml"
+    xmlns:i="http://TheInPUT.org/DesignSpace"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://TheInPUT.org/DesignSpace http://theinput.org/DesignSpace.xsd">
+
+    <!--
+        The structured parameter "Integer" has a nested primitive parameter
+        "PrimitiveInteger" which will always be 2.
+        However, outside of "Integer" there also exists a "PrimitiveInteger"
+        which will always be 1. It turns out that "Integer" will be created
+        using the outer parameter, not the nested inner parameter.
+    -->
+    <i:NParam type="integer" id="PrimitiveInteger" inclMin="1" inclMax="1"/>
+    <i:SParam id="Integer">
+        <i:NParam
+            id="PrimitiveInteger"
+            type="integer"
+            inclMin="2"
+            inclMax="2"
+            />
+    </i:SParam>
+
+</i:DesignSpace>

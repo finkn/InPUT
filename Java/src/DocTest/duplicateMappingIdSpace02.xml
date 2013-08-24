@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<i:DesignSpace
+    id="duplicateMappingSpace02"
+    mapping="duplicateMappingId02.xml"
+    xmlns:i="http://TheInPUT.org/DesignSpace"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://TheInPUT.org/DesignSpace http://theinput.org/DesignSpace.xsd">
+
+    <!-- See comment in duplicateMappingId01.xml -->
+    <!-- Change type of "Param" to double to cause an InPUTException. -->
+    <i:SParam id="Number">
+        <i:NParam type="integer" id="Param" inclMin="2.2" inclMax="2.2" />
+    </i:SParam>
+
+</i:DesignSpace>
