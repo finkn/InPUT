@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<i:CodeMappings
+    id="customAccessor"
+    xmlns:i="http://TheInPUT.org/CodeMappings"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://TheInPUT.org/CodeMappings http://theinput.org/CodeMappings.xsd">
+
+    <!--
+        This parameter does not specify any constructor parameters. The
+        mapping instead sets custom accessor methods.
+        The set method will be used both when initializing the parameter
+        and also when setting the nested Data parameter.
+        The get method will never be invoked, however.
+    -->
+    <i:Mapping
+        id="Tester"
+        type="model.CustomAccessorTester" />
+    <i:Mapping
+        id="Tester.Data"
+        set="customSetMethod"
+        get="customGetMethod" />
+
+    <!--
+        The only difference between this parameter and the one above is that
+        a constructor attribute is set. This will disable any accessors.
+    -->
+    <i:Mapping
+        id="TesterWithArg"
+        type="model.CustomAccessorTester"
+        constructor="Data" />
+    <i:Mapping
+        id="TesterWithArg.Data"
+        set="customSetMethod"
+        get="customGetMethod" />
+
+</i:CodeMappings>

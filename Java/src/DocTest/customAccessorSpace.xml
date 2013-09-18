@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<i:DesignSpace
+    id="customAccessor"
+    mapping="customAccessorMapping.xml"
+    xmlns:i="http://TheInPUT.org/DesignSpace"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://TheInPUT.org/DesignSpace http://theinput.org/DesignSpace.xsd">
+
+    <!--
+        Both parameters are mapped to the CustomAccessorTester class.
+        The only difference between them is the mapping.
+    -->
+    <i:SParam id="Tester">
+        <i:NParam id="Data" type="integer" />
+    </i:SParam>
+
+    <i:SParam id="TesterWithArg">
+        <i:NParam id="Data" type="integer" />
+    </i:SParam>
+
+</i:DesignSpace>
