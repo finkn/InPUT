@@ -129,6 +129,7 @@ public class CustomAccessorTest {
 	public void customSetterIsNotInvokedWhenOuterParameterHasNotBeenFetched()
 			throws InPUTException {
 		// Do setValue multiple times. These will not be counted.
+		// Must fetch tester in order to enable custom set method.
 		design.setValue("Tester.Data", 1);
 		design.setValue("Tester.Data", 4);
 		design.setValue("Tester.Data", 2);
@@ -155,6 +156,46 @@ public class CustomAccessorTest {
 		design.getValue("Tester.Data");
 		msg = "Getter should have been invoked once.";
 		assertEquals(msg, 1, tester.getGetterInvocations());
+	}
+
+	/**
+	 * This test shows that, even though the custom getter is not invoked
+	 * by the call to {@code design.getValue("Tester.Data")}, the correct
+	 * value is still returned. It looks as though two values are
+	 * maintained: one is the value of the field in the object instance,
+	 * and the other is a separate parameter called "Tester.Data".
+	 * 
+	 * @see #getValueShouldReflectActualFieldValue()
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void getValueShouldBeConsistentWithSetValue()
+			throws InPUTException {
+		// Must fetch tester in order to enable custom set method.
+		design.getValue("Tester");
+
+		design.setValue("Tester.Data", 1);
+		assertEquals(1, design.getValue("Tester.Data"));
+	}
+
+	/**
+	 * This test demonstrates that no kind of custom get-method at all
+	 * is invoked. While this public field back door for the
+	 * {@code data} is an unusual case, the field could just as well
+	 * have been set as a side effect of some other operation. This
+	 * test shows that the value <em>must</em> be set using
+	 * {@code design.setValue()} if {@code design.getValue()} is to
+	 * return the correct value.
+	 * 
+	 * @see #customGetterShouldBeInvokedWhenGettingValue()
+	 * @see #getValueShouldBeConsistentWithSetValue()
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void getValueShouldReflectActualFieldValue() throws InPUTException {
+		CustomAccessorTester tester = design.getValue("Tester");
+		tester.data = 5;
+		assertEquals(5, design.getValue("Tester.Data"));
 	}
 
 	/**
