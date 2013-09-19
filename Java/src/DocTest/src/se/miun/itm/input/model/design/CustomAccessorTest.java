@@ -19,7 +19,7 @@ import se.miun.itm.input.model.param.ParamStore;
  * 
  * @author Christoffer Fink
  */
-public class CustomAccessorTest {
+public class CustomAccessorTest extends TestCleanup {
 	public final static String designSpaceFile = "customAccessorSpace.xml";
 	private IDesignSpace space;
 	private IDesign design;
@@ -30,12 +30,6 @@ public class CustomAccessorTest {
 		space = new DesignSpace(designSpaceFile);
 		design = space.nextDesign("design");
 	}
-	@After
-	public void cleanup() {
-		ParamStore.releaseAllParamStores();
-		Mappings.releaseAllMappings();
-	}
-
 
 	/**
 	 * This test works like a lemma. It confirms that the
