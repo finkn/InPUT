@@ -23,13 +23,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import model.CustomAccessorTester;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import se.miun.itm.input.model.InPUTException;
-import se.miun.itm.input.model.mapping.Mappings;
-import se.miun.itm.input.model.param.ParamStore;
 
 /**
  * This class contains multiple tests that explore how custom accessors
