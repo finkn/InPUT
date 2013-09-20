@@ -35,7 +35,7 @@ import se.miun.itm.input.model.InPUTException;
 public class ParameterShadowingTest extends TestCleanup {
 	/**
 	 * This test combines the
-	 * {@link #outerParametersOverShadowsNestedParameters()} and the
+	 * {@link #outerParametersOverShadowNestedParameters()} and the
 	 * {@link NestedDependencyTest#nestedParametersCanReferenceOtherParameters()} tests.
 	 * None of the two structural parameters are initialized to the
 	 * expected value because there are two different "A" parameters.
@@ -59,6 +59,45 @@ public class ParameterShadowingTest extends TestCleanup {
 	}
 
 	/**
+	 * This test shows that the nested parameter still exists as a
+	 * separate parameter that has just happened to be initialized to
+	 * the value of some outer parameter. Ironically, it is illegal to
+	 * set the nested parameter (in this example) to the value it already
+	 * has. Why is the nested parameter initialized to the value of the
+	 * outer? It seems to make more sense that it would either 1) be
+	 * initialized as expected, but then the wrong parameter would be
+	 * used as an argument to the constructor, thus creating a mismatch
+	 * between the nested parameter and the actual wrapped value, or 2)
+	 * that the outer parameter would replace the inner so that the
+	 * inner parameter isn't initialized at all.
+	 *
+	 * @throws InPUTException never
+	 */
+	@Test
+	public void overShadowedParametersRemain() throws InPUTException {
+		final String designSpaceFile = "nestedDependentParamSpace02.xml";
+		IDesignSpace space = new DesignSpace(designSpaceFile);
+		IDesign design = space.nextDesign("design");
+		// This is obviously expected.
+		assertEquals(5, design.getValue("A"));
+		// This is a wrapper, so if it was initialized with "A", then
+		// it makes sense that the parameter would have the same value.
+		assertEquals(5, design.getValue("IndependentInteger"));
+		// But why would "IndependentInteger.A" also be initialized to
+		// the same value? Especially since 5 is out of range!
+		assertEquals(5, design.getValue("IndependentInteger.A"));
+		// This confirms that "IndependentInteger.A" still exists as a
+		// parameter independent from "A" (with the expected limits).
+		try {
+			design.setValue("IndependentInteger.A", 5);
+			fail("5 should be invalid. Only the value 1 should be allowed.");
+		} catch(IllegalArgumentException e) { }
+		design.setValue("IndependentInteger.A", 1);
+
+		fail("Undocumented behavior.");
+	}
+
+	/**
 	 * This test demonstrates that a nested parameter (inside a SParam)
 	 * is over shadowed by an outer parameter if they have the same name.
 	 * <p>
@@ -68,7 +107,7 @@ public class ParameterShadowingTest extends TestCleanup {
 	 * @throws InPUTException never
 	 */
 	@Test
-	public void outerParametersOverShadowsNestedParameters()
+	public void outerParametersOverShadowNestedParameters()
 			throws InPUTException {
 		final String designSpaceFile = "duplicateIdSpace03.xml";
 		IDesignSpace space = new DesignSpace(designSpaceFile);
