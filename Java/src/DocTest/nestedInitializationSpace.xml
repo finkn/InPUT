@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<i:DesignSpace
+    id="nestedInitialization"
+    mapping="nestedInitializationMapping.xml"
+    xmlns:i="http://TheInPUT.org/DesignSpace"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://TheInPUT.org/DesignSpace http://theinput.org/DesignSpace.xsd">
+
+    <!--
+        It is possible for an inner parameter to be defined relative to the
+        inner parameter of another parameter. However, it does not seem to
+        be possible to reference an inner parameter when setting the
+        constructor attribute. (Independent and Dependent parameters below).
+
+        A constructor parameter and an inner parameter must match (Empty and
+        NonEmpty below).
+
+        If no constructor or custom set method is set, then a default set
+        method will be used for initialization. If that method does not
+        exist, then initialization will fail (Uninitialized, NoInitializer,
+        and NoInitializer2 below).
+    -->
+    <i:NParam id="Outer" type="integer" inclMin="1" inclMax="1" />
+
+    <i:SParam id="Empty">
+    </i:SParam>
+
+    <i:SParam id="NonEmpty">
+        <i:NParam id="Inner" type="integer" exclMax="0" />
+    </i:SParam>
+
+    <i:SParam id="Independent">
+        <i:NParam id="Inner" type="integer" inclMin="1" inclMax="1" />
+    </i:SParam>
+    <i:SParam id="Dependent">
+        <i:NParam id="Inner" type="integer" exclMax="0" />
+    </i:SParam>
+
+    <!-- These three belong in a different configuration. -->
+    <i:SParam id="Uninitialized">
+        <i:NParam id="Inner" type="integer" exclMax="0" />
+    </i:SParam>
+    <i:SParam id="NoInitializer">
+        <i:NParam id="Data" type="integer" inclMin="1" inclMax="1" />
+    </i:SParam>
+    <i:SParam id="NoInitializer2">
+        <i:NParam id="Inner" type="integer" inclMin="1" inclMax="1" />
+    </i:SParam>
+
+</i:DesignSpace>

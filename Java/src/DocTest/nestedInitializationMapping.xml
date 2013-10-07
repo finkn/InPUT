@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<i:CodeMappings
+    id="nestedInitialization"
+    xmlns:i="http://TheInPUT.org/CodeMappings"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://TheInPUT.org/CodeMappings http://theinput.org/CodeMappings.xsd">
+
+    <i:Mapping
+        id="Empty"
+        type="model.CustomAccessorTester"
+        constructor="Outer"
+    />
+    <i:Mapping
+        id="NonEmpty"
+        type="model.CustomAccessorTester"
+        constructor="Outer"
+    />
+    <i:Mapping
+        id="Uninitialized"
+        type="model.CustomAccessorTester"
+    />
+    <i:Mapping
+        id="Independent"
+        type="model.CustomAccessorTester"
+        constructor="Inner"
+    />
+    <i:Mapping
+        id="Dependent"
+        type="model.CustomAccessorTester"
+        constructor="Independent.Inner"
+    />
+    <i:Mapping
+        id="NoInitializer"
+        type="model.DefaultSetTester"
+    />
+    <i:Mapping
+        id="NoInitializer2"
+        type="model.DefaultSetTester"
+    />
+
+</i:CodeMappings>
