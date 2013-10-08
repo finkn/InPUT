@@ -17,8 +17,7 @@
 
         If no constructor or custom set method is set, then a default set
         method will be used for initialization. If that method does not
-        exist, then initialization will fail (Uninitialized, NoInitializer,
-        and NoInitializer2 below).
+        exist, then initialization will fail (Uninitialized below).
     -->
     <i:NParam id="Outer" type="integer" inclMin="1" inclMax="1" />
 
@@ -36,15 +35,8 @@
         <i:NParam id="Inner" type="integer" exclMax="0" />
     </i:SParam>
 
-    <!-- These three belong in a different configuration. -->
     <i:SParam id="Uninitialized">
         <i:NParam id="Inner" type="integer" exclMax="0" />
-    </i:SParam>
-    <i:SParam id="NoInitializer">
-        <i:NParam id="Data" type="integer" inclMin="1" inclMax="1" />
-    </i:SParam>
-    <i:SParam id="NoInitializer2">
-        <i:NParam id="Inner" type="integer" inclMin="1" inclMax="1" />
     </i:SParam>
 
 </i:DesignSpace>

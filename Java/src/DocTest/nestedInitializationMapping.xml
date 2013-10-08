@@ -29,13 +29,5 @@
         type="model.CustomAccessorTester"
         constructor="Independent.Inner"
     />
-    <i:Mapping
-        id="NoInitializer"
-        type="model.DefaultSetTester"
-    />
-    <i:Mapping
-        id="NoInitializer2"
-        type="model.DefaultSetTester"
-    />
 
 </i:CodeMappings>

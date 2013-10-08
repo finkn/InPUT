@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<i:DesignSpace
+    id="defaultAccessor"
+    mapping="defaultAccessorMapping.xml"
+    xmlns:i="http://TheInPUT.org/DesignSpace"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://TheInPUT.org/DesignSpace http://theinput.org/DesignSpace.xsd">
+
+    <!--
+        If no constructor or custom set method is set, then a default set
+        method will be used for initialization. If that method does not
+        exist, then initialization will fail.
+
+        In the case of the DefaultAccessorsExist parameter, the inner Data
+        parameter matches the existing accessor methods, and initialization
+        will succeed.
+        The DefaultAccessorsMissing parameter has an inner parameter with a
+        name that does not match any existing accessors.
+    -->
+    <i:SParam id="DefaultAccessorsExist">
+        <i:NParam id="Data" type="integer" inclMin="1" inclMax="2" />
+    </i:SParam>
+    <i:SParam id="DefaultAccessorsMissing">
+        <i:NParam id="Inner" type="integer" inclMin="1" inclMax="1" />
+    </i:SParam>
+
+</i:DesignSpace>

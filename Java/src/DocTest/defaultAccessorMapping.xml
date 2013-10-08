@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<i:CodeMappings
+    id="defaultAccessor"
+    xmlns:i="http://TheInPUT.org/CodeMappings"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://TheInPUT.org/CodeMappings http://theinput.org/CodeMappings.xsd">
+
+    <i:Mapping
+        id="DefaultAccessorsExist"
+        type="model.DefaultSetTester"
+    />
+    <i:Mapping
+        id="DefaultAccessorsMissing"
+        type="model.DefaultSetTester"
+    />
+
+</i:CodeMappings>

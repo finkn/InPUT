@@ -21,7 +21,6 @@ package se.miun.itm.input.model.design;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import model.DefaultSetTester;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -32,8 +31,8 @@ import se.miun.itm.input.model.InPUTException;
  * This class contains tests of how parameters are initialized and how
  * they are related to each other. Can a constructor parameter reference
  * a nested parameter? What is the relationship between a constructor
- * parameter and an inner parameter? Is the default set method really
- * invoked?
+ * parameter and an inner parameter? What if no method for initializing
+ * an inner parameter is explicitly supplied?
  * 
  * @author Christoffer Fink
  */
@@ -87,7 +86,7 @@ public class NestedInitializationTest extends TestCleanup {
 	}
 
 	/**
-	 * This test demonstrates that an inner parameter can be a
+	 * This test demonstrates that an inner parameter cannot be a
 	 * constructor argument for another parameter.
 	 * @throws InPUTException never
 	 */
@@ -102,11 +101,14 @@ public class NestedInitializationTest extends TestCleanup {
 		} catch(InPUTException e) { }
 	}
 
-	// TODO: Move these two tests into a separate test class.
 	/**
 	 * This test demonstrates that there must exist some mechanism for
-	 * initializing nested parameters. Because no constructor attribute
-	 * is given, a setter is expected.
+	 * initializing nested parameters. Either such a mechanism is
+	 * explicitly supplied, or an attempt is made to infer one.
+	 * In this case, the inference fails because the default setter
+	 * does not exist. Therefore initialization fails.
+	 *
+	 * @see DefaultAccessorTest#defaultSetterIsUsedInAbsenceOfCustomSetterOrConstructorParam()
 	 * @throws InPUTException never
 	 */
 	@Test
@@ -114,33 +116,6 @@ public class NestedInitializationTest extends TestCleanup {
 			throws InPUTException {
 		try {
 			design.getValue("Uninitialized");
-			fail("Expected getting the parameter to fail.");
-		} catch(InPUTException e) { }
-	}
-
-	@Test
-	public void defaultSetterIsUsedInAbsenceOfCustomSetterOrConstructorParam()
-			throws InPUTException {
-		DefaultSetTester tester = design.getValue("NoInitializer");
-		assertEquals(1, tester.getSetterInvocations());
-	}
-
-	/**
-	 * This test confirms that the default setter method name is a function
-	 * of the inner parameter name, not the field that is initialized (or
-	 * the constructor argument that might be used to initialize it).
-	 * <p>
-	 * The test is almost identical to
-	 * {@link #defaultSetterIsUsedInAbsenceOfCustomSetterOrConstructorParam()}
-	 * with the difference that the parameter name does not match the field
-	 * name and therefore not the setter method name.
-	 * @throws InPUTException never
-	 */
-	@Test
-	public void defaultSetterIsAFunctionOfTheParameterName()
-			throws InPUTException {
-		try {
-			design.getValue("NoInitializer2");
 			fail("Expected getting the parameter to fail.");
 		} catch(InPUTException e) { }
 	}
